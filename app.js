@@ -12,7 +12,7 @@ const port = process.env.PORT || 8080;
 const app = express();
 
 app.set('view engine', 'ejs');
-app.set('views', __dirname + '/pages');
+app.set('views', __dirname + '\\views');
 
 function logger(req, res, next) {
     console.log(req.url);

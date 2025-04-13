@@ -14,16 +14,9 @@ const app = express();
 app.set('view engine', 'ejs');
 app.set('views', __dirname + '\\views');
 
-function logger(req, res, next) {
-    console.log(req.url);
-    next();
-}
-
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-
 app.use(express.static('public'));
-app.use(logger);
 
 app.use("/api", apiRouter);
 app.use("/", pagesRouter);

@@ -1,11 +1,12 @@
 const express = require("express");
-const Task = require('../../models/task')
+const mongoose = require("mongoose");
+const taskService = require("../../services/task");
 
 const router = express.Router();
 
 
 router.get('/', async (req, res) => {
-    const tasks = await Task.find();
+    const tasks = await taskService.getAllTasks();
     res.render('index', {tasks});
 });
 
@@ -13,28 +14,31 @@ router.post("/add", async (req, res) => {
     const { title } = req.body;
     if (!title) return res.status(400).json({error: 'title is required'});
 
-    const task = new Task({ title });
-    await task.save();
+    const task = await taskService.createTask({ title });
 
     res.redirect('/');
 })
 
 router.post("/toggle/:id", async (req, res) => {
-    const task = await Task.findById(req.params.id);
+    const task = await taskService.toggleTask(req.params.id);
     if (!task) return res.status(404).json({ error: 'Not found' });
-
-    task.done = !task.done;
-    await task.save();
 
     res.redirect('/');
 })
 
 router.post("/delete/:id", async (req, res) => {
-    const result = await Task.findByIdAndDelete(req.params.id);
+    const result = await taskService.deleteTask(req.params.id);
     if (!result) return res.status(404).json({ error: 'Not found' });
 
     res.redirect('/')
 })
 
+router.param('id', (req, res, next, id) => {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        res.status(400).json({ error: 'Invalid ID format' });
+    }
+    req.id = id;
+    next();
+})
 
 module.exports = router;

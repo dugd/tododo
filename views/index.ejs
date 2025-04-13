@@ -19,6 +19,8 @@
     <link rel="stylesheet" href="/styles/style.css">
 </head>
 <body>
+<script src="scripts/index.js" defer></script>
+
 <div class="container py-5">
     <div class="todo-app card shadow">
         <div class="card-body">
@@ -35,21 +37,12 @@
 
             <ul class="list-group">
                 <% tasks.forEach(task => { %>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <div class="d-flex align-items-center gap-4">
-                            <form action="/toggle/<%= task.id %>" method="POST">
-                                <button class="btn btn-outline-secondary btn-sm rounded-circle"><%= task.done ? "☑" : "☐" %></button>
-                            </form>
-                            <span class="task-title"><%= task.title %></span>
-                        </div>
-                        <form action="/delete/<%= task.id %>" method="POST">
-                            <button class="btn btn-danger btn-sm">X</button>
-                        </form>
-                    </li>
+                    <%- include('./item-task.ejs', { task }) %>
                 <% }) %>
             </ul>
         </div>
     </div>
 </div>
+<%- include('./edit-modal.ejs') %>
 </body>
 </html>

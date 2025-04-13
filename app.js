@@ -6,13 +6,13 @@ if (process.env.NODE_ENV !== 'production') {
 
 const dbConnect = require('./db')
 
-const taskRouter = require('./routes/tasks');
+const { apiRouter, pagesRouter } = require('./routes/index');
 
 const port = process.env.PORT || 8080;
 const app = express();
 
 app.set('view engine', 'ejs');
-app.set('views', __dirname + '/views');
+app.set('views', __dirname + '/pages');
 
 function logger(req, res, next) {
     console.log(req.url);
@@ -25,15 +25,8 @@ app.use(express.json());
 app.use(express.static('public'));
 app.use(logger);
 
-app.use("/tasks", taskRouter);
-
-app.get('/', (req, res) => {
-    res.render('index', {text: 'Dugd'});
-});
-
-app.post('/echo', (req, res) => {
-    res.send(req.body);
-})
+app.use("/api", apiRouter);
+app.use("/", pagesRouter);
 
 // async start of application
 const init = async () => {

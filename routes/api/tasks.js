@@ -42,5 +42,14 @@ router.route("/:id")
         res.status(204).end();
     })
 
+router.post('/:id/toggle', async (req, res) => {
+    const task = await Task.findById(req.params.id);
+    if (!task) return res.status(404).json({ error: 'Not found' });
+
+    task.done = !task.done;
+    await task.save();
+    res.json(task.done);
+});
+
 
 module.exports = router;

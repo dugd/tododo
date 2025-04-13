@@ -11,26 +11,27 @@
     <link rel="stylesheet" href="/styles/style.css">
 </head>
 <body>
-<h1>My Tododo List</h1>
-<form action="/add" method="POST">
-    <label>
-        Task Title:
-        <input type="text" name="title" placeholder="New task">
-    </label>
-    <button>Add</button>
-</form>
-<ul>
-    <% tasks.forEach(task => { %>
-        <li>
-            <form action="/toggle/<%= task.id %>" method="POST">
-                <button><%= task.done ? "☑" : "☐" %></button>
-            </form>
-            <span><%= task.title %></span>
-            <form action="/delete/<%= task.id %>" method="POST">
-                <button>X</button>
-            </form>
-        </li>
-    <% }) %>
-</ul>
+<div class="container">
+    <div class="todo-app">
+        <h2>Tododo List</h2>
+        <form class="row" action="/add" method="POST">
+            <input class="input-add" type="text" name="title" placeholder="New task">
+            <button class="btn-add">Add</button>
+        </form>
+        <ul>
+            <% tasks.forEach(task => { %>
+                <li class="task">
+                    <form action="/toggle/<%= task.id %>" method="POST">
+                        <button class="btn-ctrl"><%= task.done ? "☑" : "☐" %></button>
+                    </form>
+                    <span class="task-title"><%= task.title %></span>
+                    <form action="/delete/<%= task.id %>" method="POST">
+                        <button class="btn-ctrl">X</button>
+                    </form>
+                </li>
+            <% }) %>
+        </ul>
+    </div>
+</div>
 </body>
 </html>

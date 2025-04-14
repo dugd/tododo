@@ -24,7 +24,7 @@ const taskSchema = new mongoose.Schema({
 }, { timestamps: true, });
 
 taskSchema.virtual('overdue').get(function() {
-    return !this.done && this.deadline > Date.now();
+    return !this.done && Date.now() > this.deadline;
 });
 
 module.exports = mongoose.model("Task", taskSchema);

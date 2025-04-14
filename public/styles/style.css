@@ -1,0 +1,13 @@
+:root {
+    --bs-body-font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #599f92, #9050d6);
+}
+
+.todo-app {
+    max-width: 800px;
+    margin: 0 auto;
+}

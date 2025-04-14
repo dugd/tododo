@@ -1,0 +1,14 @@
+<li class="list-group-item d-flex justify-content-between align-items-center">
+    <div class="d-flex align-items-center gap-4">
+        <form action="/toggle/<%= task.id %>" method="POST">
+            <button class="btn btn-outline-secondary btn-sm rounded-circle"><%= task.done ? "☑" : "☐" %></button>
+        </form>
+        <span class="task-title"><%= task.title %></span>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editModal" data-id="<%= task.id %>" data-title="<%= task.title %>">U</button>
+        <form action="/delete/<%= task.id %>" method="POST">
+            <button class="btn btn-danger btn-sm">X</button>
+        </form>
+    </div>
+</li>

@@ -21,10 +21,22 @@ const taskSchema = new mongoose.Schema({
         }
     },
     subtasks: { type: [subtaskSchema], },
+    completedAt: { type: Date, },
 }, { timestamps: true, });
+
+
+async function updateCompletedAt (next) {
+    const updated = this;
+    updated.completedAt = (updated.done) ? new Date() : undefined;
+    next();
+}
+
 
 taskSchema.virtual('overdue').get(function() {
     return !this.done && Date.now() > this.deadline;
 });
+
+taskSchema.pre('save', updateCompletedAt);
+taskSchema.pre('findOneAndUpdate', updateCompletedAt);
 
 module.exports = mongoose.model("Task", taskSchema);

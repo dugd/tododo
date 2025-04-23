@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 
 if (process.env.NODE_ENV !== 'production') {
     require('dotenv').config()
@@ -17,6 +18,7 @@ app.set('views', __dirname + '/views');
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static('public'));
+app.use(cors());
 
 app.use("/api", apiRouter);
 app.use("/", pagesRouter);

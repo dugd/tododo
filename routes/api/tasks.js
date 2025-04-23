@@ -55,13 +55,13 @@ router.route("/:id")
 router.post('/:id/toggle', async (req, res) => {
     const task = await taskService.toggleTask(req.id);
     if (!task) return res.status(404).json({ message: 'Not found' });
-    else res.json(task.done);
+    else res.json(task);
 });
 
 router.post('/:id/:s_id/toggle', async (req, res) => {
     const task = await taskService.toggleSubtask(req.id, req.s_id);
     if (!task) return res.status(404).json({ message: 'Not found' });
-    else res.json(task.subtasks[req.s_id].done);
+    else res.json(task);
 })
 
 router.param('id', async (req, res, next, id) => {

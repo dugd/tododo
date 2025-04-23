@@ -31,21 +31,23 @@ function validateTask(data, isUpdate = false) {
         if (!Array.isArray(subtasks)) {
             errors.push("subtasks must be an array");
         }
-        subtasks.forEach((subtask, ind) => {
-            if (typeof subtask !== 'object' || subtask === null) {
-                errors.push(`subtask[${ind}] must be an object`);
-            }
+        else {
+            subtasks.forEach((subtask, ind) => {
+                if (typeof subtask !== 'object' || subtask === null) {
+                    errors.push(`subtask[${ind}] must be an object`);
+                }
 
-            const {title, done} = subtask;
+                const {title, done} = subtask;
 
-            if (title !== undefined && typeof title !== "string") {
-                errors.push(`subtask[${ind}].title is required and must be a string`);
-            }
+                if (title !== undefined && typeof title !== "string") {
+                    errors.push(`subtask[${ind}].title is required and must be a string`);
+                }
 
-            if (done !== undefined && typeof done !== "boolean") {
-                errors.push(`subtask[${ind}].done must be a boolean`);
-            }
-        });
+                if (done !== undefined && typeof done !== "boolean") {
+                    errors.push(`subtask[${ind}].done must be a boolean`);
+                }
+            });
+        }
     }
 
     return {

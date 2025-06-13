@@ -10,4 +10,11 @@ apiRouter.use('/tasks', taskRouter);
 const pagesRouter = express.Router();
 pagesRouter.use('/', indexRouter);
 
+apiRouter.get('/test-session', async (req, res) => {
+    req.session.visited = true;
+    console.log(req.session);
+    console.log(req.session.id);
+    res.send('ok');
+});
+
 module.exports = { apiRouter, pagesRouter: pagesRouter };

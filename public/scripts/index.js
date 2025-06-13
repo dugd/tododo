@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById('editModal');
-    modal.addEventListener('show.bs.modal', event => {
+    modal.addEventListener('show.bs.modal', (event) => {
         const button = event.relatedTarget;
         const id = button.getAttribute('data-id');
         const title = button.getAttribute('data-title');

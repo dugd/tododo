@@ -18,13 +18,26 @@ async function getTaskById(id) {
     return Task.findById(id);
 }
 
-async function createTask({ title, description, deadline, priority, subtasks }) {
+async function createTask({
+    title,
+    description,
+    deadline,
+    priority,
+    subtasks,
+}) {
     const task = new Task({ title, description, deadline, priority, subtasks });
     return task.save();
 }
 
-async function updateTask(id, { title, done, description, deadline, priority, subtasks }) {
-    return Task.findByIdAndUpdate(id, { title, done, description, deadline, priority, subtasks }, { new: true });
+async function updateTask(
+    id,
+    { title, done, description, deadline, priority, subtasks }
+) {
+    return Task.findByIdAndUpdate(
+        id,
+        { title, done, description, deadline, priority, subtasks },
+        { new: true }
+    );
 }
 
 async function toggleTask(id) {
@@ -56,4 +69,4 @@ module.exports = {
     toggleTask,
     toggleSubtask,
     deleteTask,
-}
+};

@@ -1,8 +1,7 @@
-const mongoose = require('mongoose')
-const {ServerApiVersion} = require("mongodb");
+const mongoose = require('mongoose');
+const { ServerApiVersion } = require('mongodb');
 
 const url = process.env.DATABASE_URL || 'mongodb://localhost:27017';
-
 
 const dbConnect = async () => {
     try {
@@ -11,7 +10,7 @@ const dbConnect = async () => {
                 version: ServerApiVersion.v1,
                 strict: true,
                 deprecationErrors: true,
-            }
+            },
         });
         console.log('MongoDB Connected');
     } catch (error) {

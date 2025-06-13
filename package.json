@@ -1,24 +1,25 @@
 {
-  "name": "tododo",
-  "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
-    "start": "node app.js",
-    "devStart": "nodemon app.js"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
-  "dependencies": {
-    "cors": "^2.8.5",
-    "ejs": "^3.1.10",
-    "express": "^5.1.0",
-    "mongodb": "^6.15.0",
-    "mongoose": "^8.13.2"
-  },
-  "devDependencies": {
-    "dotenv": "^16.5.0",
-    "nodemon": "^3.1.9"
-  }
+    "name": "tododo",
+    "version": "1.0.0",
+    "main": "index.js",
+    "scripts": {
+        "start": "node src/app.js",
+        "devStart": "nodemon src/app.js"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "description": "",
+    "dependencies": {
+        "cors": "^2.8.5",
+        "ejs": "^3.1.10",
+        "express": "^5.1.0",
+        "mongodb": "^6.15.0",
+        "mongoose": "^8.13.2"
+    },
+    "devDependencies": {
+        "dotenv": "^16.5.0",
+        "nodemon": "^3.1.9",
+        "prettier": "^3.5.3"
+    }
 }

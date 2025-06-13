@@ -2,10 +2,10 @@ const express = require('express');
 const cors = require('cors');
 
 if (process.env.NODE_ENV !== 'production') {
-    require('dotenv').config()
+    require('dotenv').config();
 }
 
-const dbConnect = require('./db')
+const dbConnect = require('./db');
 
 const { apiRouter, pagesRouter } = require('./routes/index');
 
@@ -20,15 +20,15 @@ app.use(express.json());
 app.use(express.static('public'));
 app.use(cors());
 
-app.use("/api", apiRouter);
-app.use("/", pagesRouter);
+app.use('/api', apiRouter);
+app.use('/', pagesRouter);
 
 // async start of application
 const init = async () => {
     await dbConnect();
     app.listen(port, () => {
         console.log(`server is running on port ${port}`);
-    })
-}
+    });
+};
 
-_ = init()
+_ = init();

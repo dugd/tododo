@@ -2,6 +2,7 @@ const express = require('express');
 const passport = require('passport');
 const User = require('../../models/user');
 const regex = require('../../utils/regex');
+const { isAuthenticated } = require('../../auth/middleware');
 
 const router = express.Router();
 
@@ -47,14 +48,11 @@ router.post('/login', passport.authenticate('local'), (req, res) => {
     });
 });
 
-router.get('/me', (req, res) => {
-    if (req.isAuthenticated() && req.user) {
-        return res.json({
-            message: 'User is authenticated',
-            user: req.user,
-        });
-    }
-    res.status(401).json({ message: 'User is not authenticated' });
+router.get('/me', isAuthenticated, (req, res) => {
+    return res.json({
+        message: 'User is authenticated',
+        user: req.user,
+    });
 });
 
 router.post('/logout', (req, res) => {

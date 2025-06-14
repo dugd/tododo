@@ -1,0 +1,7 @@
+@baseUrl = http://localhost:8080/api
+
+GET {{baseUrl}}/tasks/
+
+###
+
+GET {{baseUrl}}/tasks/68091779b17df39a674e9502

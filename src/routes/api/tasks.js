@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const { isAuthenticated } = require('../../auth/middleware');
 const taskService = require('../../services/task');
 const {
     createValidation,
@@ -10,30 +11,29 @@ const router = express.Router();
 
 router
     .route('/')
-    .get(async (req, res) => {
-        const tasks = await taskService.getAllTasks();
+    .get(isAuthenticated, async (req, res) => {
+        const user = req.user;
+        const tasks = await taskService.getUserTasks(user._id);
         res.json(tasks);
     })
-    .post([
-        createValidation,
-        async (req, res) => {
-            const data = req.body;
+    .post(isAuthenticated, createValidation, async (req, res) => {
+        const data = req.body;
+        const user = req.user;
 
-            try {
-                const task = await taskService.createTask(data);
-                res.status(201).json(task);
-            } catch (e) {
-                res.status(400).json({ message: e.message });
-            }
-        },
-    ]);
+        try {
+            const task = await taskService.createTask(data, user._id);
+            res.status(201).json(task);
+        } catch (e) {
+            res.status(400).json({ message: e.message });
+        }
+    });
 
-router.get('/active', async (req, res) => {
+router.get('/active', isAuthenticated, async (req, res) => {
     const tasks = await taskService.getActiveTasks();
     res.json(tasks);
 });
 
-router.get('/overdue', async (req, res) => {
+router.get('/overdue', isAuthenticated, async (req, res) => {
     const tasks = await taskService.getOverdueTasks();
     res.json(tasks);
 });
@@ -45,17 +45,14 @@ router
         if (!task) return res.status(404).json({ message: 'Not found' });
         res.json(task);
     })
-    .put([
-        updateValidation,
-        async (req, res) => {
-            const data = req.body;
+    .put(updateValidation, async (req, res) => {
+        const data = req.body;
 
-            const task = await taskService.updateTask(req.id, data);
-            if (!task) return res.status(404).json({ message: 'Not found' });
+        const task = await taskService.updateTask(req.id, data);
+        if (!task) return res.status(404).json({ message: 'Not found' });
 
-            res.json(task);
-        },
-    ])
+        res.json(task);
+    })
     .delete(async (req, res) => {
         const result = await taskService.deleteTask(req.id);
         if (!result) return res.status(404).json({ message: 'Not found' });

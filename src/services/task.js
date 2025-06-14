@@ -4,6 +4,10 @@ async function getAllTasks() {
     return Task.find();
 }
 
+async function getUserTasks(userId) {
+    return Task.find({ userId });
+}
+
 async function getActiveTasks() {
     return Task.find({ done: false });
 }
@@ -18,14 +22,18 @@ async function getTaskById(id) {
     return Task.findById(id);
 }
 
-async function createTask({
-    title,
-    description,
-    deadline,
-    priority,
-    subtasks,
-}) {
-    const task = new Task({ title, description, deadline, priority, subtasks });
+async function createTask(
+    { title, description, deadline, priority, subtasks },
+    userId
+) {
+    const task = new Task({
+        title,
+        description,
+        deadline,
+        priority,
+        subtasks,
+        userId,
+    });
     return task.save();
 }
 
@@ -61,6 +69,7 @@ async function deleteTask(id) {
 
 module.exports = {
     getAllTasks,
+    getUserTasks,
     getActiveTasks,
     getOverdueTasks,
     getTaskById,

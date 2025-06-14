@@ -4,4 +4,15 @@ GET {{baseUrl}}/tasks/
 
 ###
 
+POST {{baseUrl}}/tasks
+Content-Type: application/json
+
+{
+  "title": "Test Task",
+  "description": "This is a test task.",
+  "dueDate": "2025-12-31T23:59:59Z"
+}
+
+###
+
 GET {{baseUrl}}/tasks/68091779b17df39a674e9502

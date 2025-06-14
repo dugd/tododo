@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const session = require('express-session');
+const passport = require('passport');
+require('./auth/strategy'); // load passport strategy
 
 if (process.env.NODE_ENV !== 'production') {
     require('dotenv').config();
@@ -31,6 +33,9 @@ app.use(
         },
     })
 );
+app.use(passport.initialize());
+app.use(passport.session());
+
 app.use('/api', apiRouter);
 app.use('/', pagesRouter);
 

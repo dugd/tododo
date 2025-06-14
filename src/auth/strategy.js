@@ -1,6 +1,7 @@
 const passport = require('passport');
 const { Strategy: LocalStrategy } = require('passport-local');
 const User = require('../models/user');
+const { verify } = require('../utils/security');
 
 passport.serializeUser((user, done) => {
     done(null, user._id);
@@ -27,21 +28,18 @@ passport.use(
         },
         async (email, password, done) => {
             try {
-                const user = User.findOne({ email });
+                const user = await User.findOne({ email });
                 if (!user) {
-                    return done(null, false, {
-                        message: 'Incorrect email or password.',
-                    });
+                    throw new Error('Incorrect email or password.');
                 }
-                const isMatch = (await user.password) === password; // TODO: Replace with proper password hashing check
+
+                const isMatch = await verify(password, user.passwordHash);
                 if (!isMatch) {
-                    return done(null, false, {
-                        message: 'Incorrect email or password.',
-                    });
+                    throw new Error('Incorrect email or password.');
                 }
                 return done(null, user);
             } catch (error) {
-                return done(error);
+                return done(error, null);
             }
         }
     )

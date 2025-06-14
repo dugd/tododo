@@ -1,6 +1,9 @@
 const express = require('express');
 const passport = require('passport');
 const User = require('../../models/user');
+const regex = require('../../utils/regex');
+const { hash } = require('../../utils/security');
+const { isAuthenticated } = require('../../auth/middleware');
 
 const router = express.Router();
 
@@ -13,13 +16,22 @@ router.post('/register', async (req, res) => {
             .json({ message: 'Name, email and password are required' });
     }
 
+    if (!regex.email.test(email)) {
+        return res.status(400).json({ message: 'Email is invalid' });
+    }
+
+    if (!regex.password.test(password)) {
+        return res.status(400).json({ message: 'Password is invalid' });
+    }
+
     try {
         const existing = await User.findOne({ email });
         if (existing) {
             return res.status(400).json({ message: 'Email is taken' });
         }
 
-        const newUser = new User({ name, email, password }); // TODO: Hash before saving
+        const hashedPassword = await hash(password);
+        const newUser = new User({ name, email, passwordHash: hashedPassword });
         await newUser.save();
 
         res.status(201).json({
@@ -27,7 +39,10 @@ router.post('/register', async (req, res) => {
             user: newUser,
         });
     } catch (error) {
-        res.status(500).json({ message: 'Error registering user', error });
+        res.status(500).json({
+            message: 'Error registering user',
+            error: error.message,
+        });
     }
 });
 
@@ -38,14 +53,11 @@ router.post('/login', passport.authenticate('local'), (req, res) => {
     });
 });
 
-router.get('/me', (req, res) => {
-    if (req.isAuthenticated() && req.user) {
-        return res.json({
-            message: 'User is authenticated',
-            user: req.user,
-        });
-    }
-    res.status(401).json({ message: 'User is not authenticated' });
+router.get('/me', isAuthenticated, (req, res) => {
+    return res.json({
+        message: 'User is authenticated',
+        user: req.user,
+    });
 });
 
 router.post('/logout', (req, res) => {

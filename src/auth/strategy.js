@@ -10,7 +10,8 @@ passport.deserializeUser(async (id, done) => {
     try {
         const user = await User.findById(id);
         if (!user) {
-            return done(new Error('User not found'));
+            // TODO: log this
+            return done(null, false);
         }
         done(null, user);
     } catch (error) {
@@ -26,7 +27,7 @@ passport.use(
         },
         async (email, password, done) => {
             try {
-                const user = await User.findOne({ email });
+                const user = User.findOne({ email });
                 if (!user) {
                     return done(null, false, {
                         message: 'Incorrect email or password.',

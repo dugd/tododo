@@ -1,6 +1,7 @@
 const express = require('express');
 const passport = require('passport');
 const User = require('../../models/user');
+const regex = require('../../utils/regex');
 
 const router = express.Router();
 
@@ -11,6 +12,14 @@ router.post('/register', async (req, res) => {
         return res
             .status(400)
             .json({ message: 'Name, email and password are required' });
+    }
+
+    if (!regex.email.test(email)) {
+        return res.status(400).json({ message: 'Email is invalid' });
+    }
+
+    if (!regex.password.test(password)) {
+        return res.status(400).json({ message: 'Password is invalid' });
     }
 
     try {

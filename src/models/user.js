@@ -14,15 +14,9 @@ const userSchema = new mongoose.Schema(
                 message: (props) => 'email is invalid',
             },
         },
-        password: {
+        passwordHash: {
             type: String,
             required: true,
-            validate: {
-                validator: (v) => {
-                    return regex.password.test(v);
-                },
-                message: (props) => 'password is invalid',
-            },
         },
     },
     {

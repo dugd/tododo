@@ -1,5 +1,6 @@
 const passport = require('passport');
 const { Strategy: LocalStrategy } = require('passport-local');
+const bcrypt = require('bcrypt');
 const User = require('../models/user');
 
 passport.serializeUser((user, done) => {
@@ -29,19 +30,19 @@ passport.use(
             try {
                 const user = await User.findOne({ email });
                 if (!user) {
-                    return done(null, false, {
-                        message: 'Incorrect email or password.',
-                    });
+                    throw new Error('Incorrect email or password.');
                 }
-                const isMatch = user.password === password; // TODO: Replace with proper password hashing check
+
+                const isMatch = await bcrypt.compare(
+                    password,
+                    user.passwordHash
+                );
                 if (!isMatch) {
-                    return done(null, false, {
-                        message: 'Incorrect email or password.',
-                    });
+                    throw new Error('Incorrect email or password.');
                 }
                 return done(null, user);
             } catch (error) {
-                return done(error);
+                return done(error, null);
             }
         }
     )

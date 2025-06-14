@@ -1,5 +1,6 @@
 const express = require('express');
 const passport = require('passport');
+const bcrypt = require('bcrypt');
 const User = require('../../models/user');
 const regex = require('../../utils/regex');
 const { isAuthenticated } = require('../../auth/middleware');
@@ -29,7 +30,9 @@ router.post('/register', async (req, res) => {
             return res.status(400).json({ message: 'Email is taken' });
         }
 
-        const newUser = new User({ name, email, password }); // TODO: Hash before saving
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+        const newUser = new User({ name, email, passwordHash: hashedPassword });
         await newUser.save();
 
         res.status(201).json({
@@ -37,7 +40,10 @@ router.post('/register', async (req, res) => {
             user: newUser,
         });
     } catch (error) {
-        res.status(500).json({ message: 'Error registering user', error });
+        res.status(500).json({
+            message: 'Error registering user',
+            error: error.message,
+        });
     }
 });
 

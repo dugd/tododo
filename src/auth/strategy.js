@@ -27,13 +27,13 @@ passport.use(
         },
         async (email, password, done) => {
             try {
-                const user = User.findOne({ email });
+                const user = await User.findOne({ email });
                 if (!user) {
                     return done(null, false, {
                         message: 'Incorrect email or password.',
                     });
                 }
-                const isMatch = (await user.password) === password; // TODO: Replace with proper password hashing check
+                const isMatch = user.password === password; // TODO: Replace with proper password hashing check
                 if (!isMatch) {
                     return done(null, false, {
                         message: 'Incorrect email or password.',

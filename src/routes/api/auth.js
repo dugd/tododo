@@ -1,8 +1,8 @@
 const express = require('express');
 const passport = require('passport');
-const bcrypt = require('bcrypt');
 const User = require('../../models/user');
 const regex = require('../../utils/regex');
+const { hash } = require('../../utils/security');
 const { isAuthenticated } = require('../../auth/middleware');
 
 const router = express.Router();
@@ -30,8 +30,7 @@ router.post('/register', async (req, res) => {
             return res.status(400).json({ message: 'Email is taken' });
         }
 
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
+        const hashedPassword = await hash(password);
         const newUser = new User({ name, email, passwordHash: hashedPassword });
         await newUser.save();
 

@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt');
 
 async function hash(data) {
     const salt = await bcrypt.genSalt(10);
-    return await bcrypt.hash(password, salt);
+    return await bcrypt.hash(data, salt);
 }
 
 async function verify(data, encoded) {

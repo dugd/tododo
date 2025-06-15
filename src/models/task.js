@@ -10,6 +10,7 @@ const subtaskSchema = new mongoose.Schema(
 
 const taskSchema = new mongoose.Schema(
     {
+        userId: { type: mongoose.SchemaTypes.ObjectId, ref: 'User' },
         title: { type: String, required: true },
         done: { type: Boolean, default: false },
         description: { type: String },

@@ -1,62 +1,70 @@
 const Task = require('../models/task');
 
-async function getAllTasks() {
-    return Task.find();
+async function getAllTasks(userId = null) {
+    const filter = userId ? { userId } : {};
+    return Task.find(filter);
 }
 
-async function getActiveTasks() {
-    return Task.find({ done: false });
+async function getActiveTasks(userId = null) {
+    const filter = { done: false };
+    if (userId) filter.userId = userId;
+    return Task.find(filter);
 }
 
-async function getOverdueTasks() {
-    let tasks = await Task.find({ done: false });
-    tasks = tasks.filter((task) => task.overdue);
-    return tasks;
+async function getOverdueTasks(userId = null) {
+    const filter = { done: false };
+    if (userId) filter.userId = userId;
+    const tasks = await Task.find(filter);
+    return tasks.filter((task) => task.overdue);
 }
 
-async function getTaskById(id) {
-    return Task.findById(id);
+async function getTaskById(id, userId = null) {
+    const filter = { _id: id };
+    if (userId) filter.userId = userId;
+    return Task.findOne(filter);
 }
 
-async function createTask({
-    title,
-    description,
-    deadline,
-    priority,
-    subtasks,
-}) {
-    const task = new Task({ title, description, deadline, priority, subtasks });
+async function createTask(
+    { title, description, deadline, priority, subtasks },
+    userId
+) {
+    const task = new Task({
+        title,
+        description,
+        deadline,
+        priority,
+        subtasks,
+        userId,
+    });
     return task.save();
 }
 
 async function updateTask(
     id,
-    { title, done, description, deadline, priority, subtasks }
+    { title, done, description, deadline, priority, subtasks },
+    userId
 ) {
-    return Task.findByIdAndUpdate(
-        id,
-        { title, done, description, deadline, priority, subtasks },
-        { new: true }
-    );
+    const filter = { _id: id, userId };
+    const update = { title, done, description, deadline, priority, subtasks };
+    return Task.findOneAndUpdate(filter, update, { new: true });
 }
 
-async function toggleTask(id) {
-    const task = await getTaskById(id);
+async function toggleTask(id, userId) {
+    const task = await getTaskById(id, userId);
     if (!task) return null;
     task.done = !task.done;
     return task.save();
 }
 
-async function toggleSubtask(id, index) {
-    const task = await getTaskById(id);
-    if (!task) return null;
-    if (index >= task.subtasks.length) return null;
+async function toggleSubtask(id, index, userId) {
+    const task = await getTaskById(id, userId);
+    if (!task || index >= task.subtasks.length) return null;
     task.subtasks[index].done = !task.subtasks[index].done;
     return task.save();
 }
 
-async function deleteTask(id) {
-    return Task.findByIdAndDelete(id);
+async function deleteTask(id, userId) {
+    return Task.findOneAndDelete({ _id: id, userId });
 }
 
 module.exports = {

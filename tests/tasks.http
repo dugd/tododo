@@ -4,6 +4,14 @@ GET {{baseUrl}}/tasks/
 
 ###
 
+GET {{baseUrl}}/tasks/active
+
+###
+
+GET {{baseUrl}}/tasks/overdue
+
+###
+
 POST {{baseUrl}}/tasks
 Content-Type: application/json
 

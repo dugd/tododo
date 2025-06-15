@@ -4,6 +4,7 @@ const User = require('../../models/user');
 const regex = require('../../utils/regex');
 const { hash } = require('../../utils/security');
 const { isAuthenticated } = require('../../auth/middleware');
+const { sendTestEmail } = require('../../services/mail');
 
 const router = express.Router();
 
@@ -33,6 +34,9 @@ router.post('/register', async (req, res) => {
         const hashedPassword = await hash(password);
         const newUser = new User({ name, email, passwordHash: hashedPassword });
         await newUser.save();
+        setImmediate(() => {
+            sendTestEmail(email).catch(console.error);
+        });
 
         res.status(201).json({
             message: 'User registered successfully',

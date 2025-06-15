@@ -32,6 +32,9 @@ passport.use(
                 if (!user) {
                     throw new Error('Incorrect email or password.');
                 }
+                if (!user.isActivated) {
+                    throw new Error('User is not activated.');
+                }
 
                 const isMatch = await verify(password, user.passwordHash);
                 if (!isMatch) {

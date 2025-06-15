@@ -11,6 +11,10 @@ Content-Type: application/json
 
 ###
 
+POST {{baseUrl}}/auth/activate?token=activation-token
+
+###
+
 POST {{baseUrl}}/auth/login
 Content-Type: application/json
 

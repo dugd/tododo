@@ -2,7 +2,7 @@ const express = require('express');
 const passport = require('passport');
 const User = require('../../models/user');
 const regex = require('../../utils/regex');
-const { hash } = require('../../utils/security');
+const { hash, jwtSign } = require('../../utils/security');
 const { isAuthenticated } = require('../../auth/middleware');
 const { sendTestEmail } = require('../../services/mail');
 
@@ -34,12 +34,14 @@ router.post('/register', async (req, res) => {
         const hashedPassword = await hash(password);
         const newUser = new User({ name, email, passwordHash: hashedPassword });
         await newUser.save();
+        const token = jwtSign({ userId: newUser._id });
         setImmediate(() => {
             sendTestEmail(email).catch(console.error);
         });
 
         res.status(201).json({
             message: 'User registered successfully',
+            token,
             user: newUser,
         });
     } catch (error) {

@@ -76,11 +76,11 @@ router.post('/register', async (req, res) => {
                 'Check your email and activate your account to complete registration',
             token,
         });
-    } catch (error) {
+    } catch (err) {
         console.error('Error upon user registration:', err);
         res.status(500).json({
             message: 'Internal server error',
-            error: error.message,
+            error: err.message,
         });
     }
 });
@@ -107,11 +107,11 @@ router.post('/activate', jwtTokenParser, async (req, res) => {
             message: 'User has been activated',
             user,
         });
-    } catch (e) {
+    } catch (err) {
         console.error('Error upon user activation:', err);
         res.status(500).json({
             message: 'Internal server error',
-            error: error.message,
+            error: err.message,
         });
     }
 });
@@ -122,14 +122,14 @@ router.post('/reset-password/request', async (req, res) => {
         res.status(400).json({ message: 'Email is required' });
     }
     try {
-        const user = await User.find({ email });
+        const user = await User.findOne({ email });
         if (!user) {
             return res.status(404).json({ message: 'user does not exist' });
         }
         if (!user.isActivated) {
             return res.status(400).json({ message: 'user is not activated' });
         }
-        const token = jwtSign({ userId: newUser._id, type: 'password' });
+        const token = jwtSign({ userId: user._id, type: 'password' });
         setImmediate(() => {
             sendResetPasswordEmail(email, token).catch(console.error);
         });
@@ -138,11 +138,11 @@ router.post('/reset-password/request', async (req, res) => {
             message: 'Check your email to reset your password',
             token,
         });
-    } catch (e) {
+    } catch (err) {
         console.error('Error upon reset password request:', err);
         res.status(500).json({
             message: 'Internal server error',
-            error: error.message,
+            error: err.message,
         });
     }
 });
@@ -159,7 +159,7 @@ router.post('/reset-password/confirm', jwtTokenParser, async (req, res) => {
         res.status(400).json({ message: 'New password is required' });
     }
 
-    if (!regex.password.test(password)) {
+    if (!regex.password.test(newPassword)) {
         return res.status(400).json({ message: 'Password is invalid' });
     }
 
@@ -172,7 +172,7 @@ router.post('/reset-password/confirm', jwtTokenParser, async (req, res) => {
             return res.status(400).json({ message: 'user is not activated' });
         }
 
-        const newPasswordHash = await hash(password);
+        const newPasswordHash = await hash(newPassword);
         user.passwordHash = newPasswordHash;
         await user.save();
 
@@ -180,11 +180,11 @@ router.post('/reset-password/confirm', jwtTokenParser, async (req, res) => {
             message: 'Password has been updated',
             user,
         });
-    } catch (e) {
+    } catch (err) {
         console.error('Error upon reset password confirmation:', err);
         res.status(500).json({
             message: 'Internal server error',
-            error: error.message,
+            error: err.message,
         });
     }
 });

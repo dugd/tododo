@@ -30,3 +30,21 @@ GET {{baseUrl}}/auth/me
 ###
 
 POST {{baseUrl}}/auth/logout
+
+###
+
+POST {{baseUrl}}/auth/reset-password/request
+Content-Type: application/json
+
+{
+  "email": "john.doe@example.com"
+}
+
+###
+
+POST {{baseUrl}}/auth/reset-password/confirm?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODRkY2U4OWFlYTRjNjIzZjI0MjdhOGIiLCJ0eXBlIjoicGFzc3dvcmQiLCJpYXQiOjE3NTAxNzA4MTYsImV4cCI6MTc1MDE3MTcxNn0.PwFbGIOIKFUVwwPHNKguVPPRJ0MCmEMCf9amKYEV-G8
+Content-Type: application/json
+
+{
+  "newPassword": "newpassword123"
+}

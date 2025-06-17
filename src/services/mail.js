@@ -9,60 +9,59 @@ const transport = nodemailer.createTransport({
     },
 });
 
-const sendTestEmail = async (toEmail) => {
-    try {
-        const res = await transport.sendMail({
-            from: '"Tododo" <no-reply@tododo.com>',
-            to: toEmail,
-            subject: 'Hello world!',
-            text: 'This is a test message sent via Mailtrap!',
-            html: '<br>This is a test message sent via Mailtrap!</br>',
-        });
+function generateTestMail() {
+    return {
+        subject: 'Hello world!',
+        text: 'This is a test message sent via Mailtrap!',
+        html: '<br>This is a test message sent via Mailtrap!</br>',
+    };
+}
 
-        console.log(`message send: ${res.messageId}`);
-    } catch (e) {
-        console.error('Error sending email:', e);
-    }
-};
-
-const sendActivateEmail = async (toEmail, token) => {
-    try {
-        const actionLink = `${process.env.ACTIVATION_URL}?token=${token}`;
-        const res = await transport.sendMail({
-            from: '"Tododo" <no-reply@tododo.com>',
-            to: toEmail,
-            subject: 'Activate your account on Tododo',
-            text: `Welcome and thanks for signing up.:
+function generateActivateMail(token) {
+    const actionLink = `${process.env.ACTIVATION_URL}?token=${token}`;
+    return {
+        subject: 'Activate your account on Tododo',
+        text: `Welcome and thanks for signing up.
             To activate your account, please use the following link: 
             ${actionLink}`,
-            html: `Welcome and thanks for signing up.:
+        html: `Welcome and thanks for signing up.
             To activate your account, please use the following link: 
             ${actionLink}`,
-        });
+    };
+}
 
-        console.log(`message send: ${res.messageId}`);
-    } catch (e) {
-        console.error('Error sending email:', e);
-    }
-};
+function generateResetPasswordMail(token) {
+    const actionLink = `${process.env.ACTIVATION_URL}?token=${token}`;
+    return {
+        subject: 'Reset password request on Tododo',
+        text: `If your would like to reset your password, please go this link:
+        ${actionLink}`,
+        html: `If your would like to reset your password, please go this link:
+        ${actionLink}`,
+    };
+}
 
-const sendResetPasswordEmail = async (toEmail, token) => {
+const sendMail = async (toEmail, sendData) => {
     try {
-        const actionLink = `${process.env.RESET_PASSWORD_URL}?token=${token}`;
         const res = await transport.sendMail({
             from: '"Tododo" <no-reply@tododo.com>',
             to: toEmail,
-            subject: 'Reset password request on Tododo',
-            text: `If your would like to reset your password, please go this link:
-            ${actionLink}`,
-            html: `If your would like to reset your password, please go this link:
-            ${actionLink}`,
+            subject: sendData.subject,
+            text: sendData.text,
+            html: sendData.html,
         });
 
-        console.log(`message send: ${res.messageId}`);
+        console.log('Email sent:', res.messageId);
+        return res.messageId;
     } catch (e) {
-        console.error('Error sending email:', e);
+        console.error('Error sending email:', e.message);
+        throw e;
     }
 };
 
-module.exports = { sendTestEmail, sendActivateEmail, sendResetPasswordEmail };
+module.exports = {
+    sendMail,
+    generateTestMail,
+    generateActivateMail,
+    generateResetPasswordMail,
+};

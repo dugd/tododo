@@ -6,8 +6,9 @@ const regex = require('../../utils/regex');
 const { hash, jwtSign, jwtVerify } = require('../../utils/security');
 const { isAuthenticated } = require('../../auth/middleware');
 const {
-    sendActivateEmail,
-    sendResetPasswordEmail,
+    sendMail,
+    generateActivateMail,
+    generateResetPasswordMail,
 } = require('../../services/mail');
 
 const router = express.Router();
@@ -68,7 +69,7 @@ router.post('/register', async (req, res) => {
         await newUser.save();
         const token = jwtSign({ userId: newUser._id, type: 'activate' });
         setImmediate(() => {
-            sendActivateEmail(email, token).catch(console.error);
+            sendMail(email, generateActivateMail(token)).catch(console.error);
         });
 
         res.status(201).json({
@@ -131,7 +132,9 @@ router.post('/reset-password/request', async (req, res) => {
         }
         const token = jwtSign({ userId: user._id, type: 'password' });
         setImmediate(() => {
-            sendResetPasswordEmail(email, token).catch(console.error);
+            sendMail(email, generateResetPasswordMail(token)).catch(
+                console.error
+            );
         });
 
         res.status(201).json({

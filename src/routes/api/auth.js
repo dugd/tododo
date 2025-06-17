@@ -5,7 +5,10 @@ const User = require('../../models/user');
 const regex = require('../../utils/regex');
 const { hash, jwtSign, jwtVerify } = require('../../utils/security');
 const { isAuthenticated } = require('../../auth/middleware');
-const { sendTestEmail } = require('../../services/mail');
+const {
+    sendActivateEmail,
+    sendResetPasswordEmail,
+} = require('../../services/mail');
 
 const router = express.Router();
 
@@ -42,7 +45,7 @@ router.post('/register', async (req, res) => {
         await newUser.save();
         const token = jwtSign({ userId: newUser._id });
         setImmediate(() => {
-            sendTestEmail(email).catch(console.error);
+            sendActivateEmail(email, token).catch(console.error);
         });
 
         res.status(201).json({

@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const subtaskSchema = new mongoose.Schema(
     {
         title: { type: String, required: true },
-        done: { type: Boolean, default: false },
+        done: { type: Boolean, required: true, default: false },
     },
     { _id: false }
 );
@@ -12,11 +12,12 @@ const taskSchema = new mongoose.Schema(
     {
         userId: { type: mongoose.SchemaTypes.ObjectId, ref: 'User' },
         title: { type: String, required: true },
-        done: { type: Boolean, default: false },
+        done: { type: Boolean, required: true, default: false },
         description: { type: String },
         deadline: { type: Date },
         priority: {
             type: Number,
+            required: true,
             min: 1,
             max: 3,
             default: 2,

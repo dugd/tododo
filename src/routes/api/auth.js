@@ -94,6 +94,7 @@ router.post('/activate', async (req, res) => {
                 .json({ message: 'user is already activated' });
         }
         user.isActivated = true;
+        user.expireAt = undefined;
         await user.save();
         res.json({
             message: 'User has been activated',

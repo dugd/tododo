@@ -11,14 +11,19 @@ apiRouter.use('/tasks', taskRouter);
 apiRouter.use('/users', userRouter);
 apiRouter.use('/auth', authRouter);
 
+apiRouter.use((err, req, res, next) => {
+    const status = err.status || 500;
+
+    console.error(err);
+
+    res.status(status).json({
+        error: {
+            message: err.message || 'Internal Server Error',
+        },
+    });
+});
+
 const pagesRouter = express.Router();
 pagesRouter.use('/', indexRouter);
-
-apiRouter.get('/test-session', async (req, res) => {
-    req.session.visited = true;
-    console.log(req.session);
-    console.log(req.session.id);
-    res.send('ok');
-});
 
 module.exports = { apiRouter, pagesRouter: pagesRouter };

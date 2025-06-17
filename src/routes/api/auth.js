@@ -30,7 +30,7 @@ function jwtTokenParser(req, res, next) {
         if (e instanceof jwt.JsonWebTokenError) {
             return res.status(400).json({ message: 'Invalid token format' });
         }
-        return res.status(500).json({ message: 'Token verification failed' });
+        throw new Error('Token verification failed');
     }
     req.tokenPayload = payload;
     next();
@@ -78,11 +78,8 @@ router.post('/register', async (req, res) => {
             token,
         });
     } catch (err) {
-        console.error('Error upon user registration:', err);
-        res.status(500).json({
-            message: 'Internal server error',
-            error: err.message,
-        });
+        console.error('Error upon user registration:', err.message);
+        throw err;
     }
 });
 
@@ -109,11 +106,8 @@ router.post('/activate', jwtTokenParser, async (req, res) => {
             user,
         });
     } catch (err) {
-        console.error('Error upon user activation:', err);
-        res.status(500).json({
-            message: 'Internal server error',
-            error: err.message,
-        });
+        console.error('Error upon user activation:', err.message);
+        throw err;
     }
 });
 
@@ -142,11 +136,8 @@ router.post('/reset-password/request', async (req, res) => {
             token,
         });
     } catch (err) {
-        console.error('Error upon reset password request:', err);
-        res.status(500).json({
-            message: 'Internal server error',
-            error: err.message,
-        });
+        console.error('Error upon reset password request:', err.message);
+        throw err;
     }
 });
 
@@ -184,19 +175,26 @@ router.post('/reset-password/confirm', jwtTokenParser, async (req, res) => {
             user,
         });
     } catch (err) {
-        console.error('Error upon reset password confirmation:', err);
-        res.status(500).json({
-            message: 'Internal server error',
-            error: err.message,
-        });
+        console.error('Error upon reset password confirmation:', err.message);
+        throw err;
     }
 });
 
-router.post('/login', passport.authenticate('local'), (req, res) => {
-    res.json({
-        message: 'Login success',
-        user: req.user,
-    });
+router.post('/login', (req, res, next) => {
+    passport.authenticate('local', (err, user, info, status) => {
+        if (err) {
+            if (err.status == 401)
+                return res.status(401).json({ message: err.message });
+            return next(err);
+        }
+        req.login(user, (err) => {
+            if (err) return next(err);
+            res.json({
+                message: 'Login success',
+                user,
+            });
+        });
+    })(req, res, next);
 });
 
 router.get('/me', isAuthenticated, (req, res) => {
@@ -206,10 +204,10 @@ router.get('/me', isAuthenticated, (req, res) => {
     });
 });
 
-router.post('/logout', (req, res) => {
+router.post('/logout', (req, res, next) => {
     req.logout((err) => {
         if (err) {
-            return res.status(500).json({ message: 'Logout failed' });
+            return next(err);
         }
         res.json({ message: 'Logout success' });
     });

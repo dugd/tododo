@@ -1,4 +1,5 @@
 const express = require('express');
+const { AppError } = require('../error');
 
 const taskRouter = require('./api/tasks');
 const userRouter = require('./api/users');
@@ -14,12 +15,12 @@ apiRouter.use('/auth', authRouter);
 apiRouter.use((err, req, res, next) => {
     const status = err.status || 500;
 
-    console.error(err);
+    if (err.loggable ?? true) {
+        console.error(err);
+    }
 
     res.status(status).json({
-        error: {
-            message: err.message || 'Internal Server Error',
-        },
+        message: err.message || 'Internal Server Error',
     });
 });
 

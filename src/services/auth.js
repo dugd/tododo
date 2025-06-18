@@ -1,32 +1,47 @@
 const User = require('../models/user');
+const { verify, hash, jwtSign } = require('../utils/security');
+const regex = require('../utils/regex');
+const {
+    generateActivateMail,
+    generateResetPasswordMail,
+    sendMail,
+} = require('./mail');
+const { ValidationError, NotFoundError, AppError } = require('../error');
+const {
+    WrongCredentials,
+    NotActivatedError,
+    EmailIsTaken,
+} = require('../error/auth');
 
 async function login(email, password) {
     const user = await User.findOne({ email });
     if (!user) {
-        throw new Error('Incorrect email or password.');
+        throw new WrongCredentials('Incorrect email or password.');
     }
     if (!user.isActivated) {
-        throw new Error('User is not activated.');
+        throw new NotActivatedError();
     }
 
     const isMatch = await verify(password, user.passwordHash);
     if (!isMatch) {
-        throw new Error('Incorrect email or password.');
+        throw new WrongCredentials('Incorrect email or password.');
     }
+
+    return user;
 }
 
 async function register({ name, email, password }) {
     if (!regex.email.test(email)) {
-        throw new Error('Email is invalid');
+        throw new ValidationError('Email is invalid');
     }
 
     if (!regex.password.test(password)) {
-        throw new Error('Password is invalid');
+        throw new ValidationError('Password is invalid');
     }
 
     const existing = await User.findOne({ email });
     if (existing) {
-        throw new Error('Email is taken');
+        throw new EmailIsTaken('Email is taken');
     }
 
     await newUser.save();
@@ -38,17 +53,13 @@ async function register({ name, email, password }) {
     return token;
 }
 
-async function activate(tokenPayload) {
-    const { userId, type: tokenType } = req.tokenPayload;
-    if (tokenType !== 'activate' || !userId) {
-        throw new Error('Invalid token payload');
-    }
+async function activate(userId) {
     const user = await User.findById(userId);
     if (!user) {
-        throw new Error('user does not exist');
+        throw new NotFoundError('User');
     }
     if (user.isActivated) {
-        throw new Error('user is already activated');
+        throw new AppError('user is already activated', 400, false);
     }
     user.isActivated = true;
     user.expireAt = undefined;
@@ -60,10 +71,10 @@ async function activate(tokenPayload) {
 async function resetPasswordRequest(email) {
     const user = await User.findOne({ email });
     if (!user) {
-        throw new Error('user does not exist');
+        throw new NotFoundError('User');
     }
     if (!user.isActivated) {
-        throw new Error('user is not activated');
+        throw new NotActivatedError();
     }
     const token = jwtSign({ userId: user._id, type: 'password' });
     setImmediate(() => {
@@ -73,25 +84,28 @@ async function resetPasswordRequest(email) {
     return token;
 }
 
-async function resetPassword(tokenPayload, newPassword) {
-    const { userId, type: tokenType } = tokenPayload;
-    if (tokenType !== 'password' || !userId) {
-        throw new Error('Invalid token payload');
-    }
-
+async function resetPassword(userId, newPassword) {
     if (!regex.password.test(newPassword)) {
-        throw new Error('Password is invalid');
+        throw new ValidationError('Password is invalid');
     }
 
     const user = await User.findById(userId);
     if (!user) {
-        throw new Error('user does not exist');
+        throw new NotFoundError('User');
     }
     if (!user.isActivated) {
-        throw new Error('user is not activated');
+        throw new NotActivatedError();
     }
 
     const newPasswordHash = await hash(newPassword);
     user.passwordHash = newPasswordHash;
     await user.save();
 }
+
+module.exports = {
+    login,
+    register,
+    activate,
+    resetPasswordRequest,
+    resetPassword,
+};

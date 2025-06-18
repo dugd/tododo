@@ -1,15 +1,15 @@
 const express = require('express');
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
-const User = require('../../models/user');
-const regex = require('../../utils/regex');
-const { hash, jwtSign, jwtVerify } = require('../../utils/security');
+const { jwtVerify } = require('../../utils/security');
 const { isAuthenticated } = require('../../auth/middleware');
 const {
-    sendMail,
-    generateActivateMail,
-    generateResetPasswordMail,
-} = require('../../services/mail');
+    register,
+    resetPassword,
+    resetPasswordRequest,
+    activate,
+} = require('../../services/auth');
+const { ValidationError } = require('../../error');
 
 const router = express.Router();
 
@@ -40,151 +40,64 @@ router.post('/register', async (req, res) => {
     const { name, email, password } = req.body;
 
     if (!name || !email || !password) {
-        return res
-            .status(400)
-            .json({ message: 'Name, email and password are required' });
+        throw new ValidationError('Name, email and password are required');
     }
 
-    if (!regex.email.test(email)) {
-        return res.status(400).json({ message: 'Email is invalid' });
-    }
+    const token = await register({ name, email, password });
 
-    if (!regex.password.test(password)) {
-        return res.status(400).json({ message: 'Password is invalid' });
-    }
-
-    try {
-        const existing = await User.findOne({ email });
-        if (existing) {
-            return res.status(400).json({ message: 'Email is taken' });
-        }
-
-        const passwordHash = await hash(password);
-        const newUser = new User({
-            name,
-            email,
-            passwordHash,
-            isActivated: false,
-        });
-        await newUser.save();
-        const token = jwtSign({ userId: newUser._id, type: 'activate' });
-        setImmediate(() => {
-            sendMail(email, generateActivateMail(token)).catch(console.error);
-        });
-
-        res.status(201).json({
-            message:
-                'Check your email and activate your account to complete registration',
-            token,
-        });
-    } catch (err) {
-        console.error('Error upon user registration:', err.message);
-        throw err;
-    }
+    res.status(201).json({
+        message:
+            'Check your email and activate your account to complete registration',
+        token,
+    });
 });
 
 router.post('/activate', jwtTokenParser, async (req, res) => {
     const { userId, type: tokenType } = req.tokenPayload;
     if (tokenType !== 'activate' || !userId) {
-        return res.status(400).json({ message: 'Invalid token payload' });
+        throw new ValidationError('Invalid token payload');
     }
-    try {
-        const user = await User.findById(userId);
-        if (!user) {
-            return res.status(404).json({ message: 'user does not exist' });
-        }
-        if (user.isActivated) {
-            return res
-                .status(400)
-                .json({ message: 'user is already activated' });
-        }
-        user.isActivated = true;
-        user.expireAt = undefined;
-        await user.save();
-        res.json({
-            message: 'User has been activated',
-            user,
-        });
-    } catch (err) {
-        console.error('Error upon user activation:', err.message);
-        throw err;
-    }
+    const user = await activate(req.tokenPayload);
+    res.json({
+        message: 'User has been activated',
+        user,
+    });
 });
 
 router.post('/reset-password/request', async (req, res) => {
     const { email } = req.body;
     if (!email) {
-        res.status(400).json({ message: 'Email is required' });
+        throw new ValidationError('Email is required');
     }
-    try {
-        const user = await User.findOne({ email });
-        if (!user) {
-            return res.status(404).json({ message: 'user does not exist' });
-        }
-        if (!user.isActivated) {
-            return res.status(400).json({ message: 'user is not activated' });
-        }
-        const token = jwtSign({ userId: user._id, type: 'password' });
-        setImmediate(() => {
-            sendMail(email, generateResetPasswordMail(token)).catch(
-                console.error
-            );
-        });
-
-        res.status(201).json({
-            message: 'Check your email to reset your password',
-            token,
-        });
-    } catch (err) {
-        console.error('Error upon reset password request:', err.message);
-        throw err;
-    }
+    const token = await resetPasswordRequest(email);
+    res.status(201).json({
+        message: 'Check your email to reset your password',
+        token,
+    });
 });
 
 router.post('/reset-password/confirm', jwtTokenParser, async (req, res) => {
     const { userId, type: tokenType } = req.tokenPayload;
     if (tokenType !== 'password' || !userId) {
-        return res.status(400).json({ message: 'Invalid token payload' });
+        throw new ValidationError('Invalid token payload');
     }
 
     const { newPassword } = req.body;
 
     if (!newPassword) {
-        res.status(400).json({ message: 'New password is required' });
+        throw new ValidationError('New password is required');
     }
 
-    if (!regex.password.test(newPassword)) {
-        return res.status(400).json({ message: 'Password is invalid' });
-    }
+    await resetPassword(req.tokenPayload, newPassword);
 
-    try {
-        const user = await User.findById(userId);
-        if (!user) {
-            return res.status(404).json({ message: 'user does not exist' });
-        }
-        if (!user.isActivated) {
-            return res.status(400).json({ message: 'user is not activated' });
-        }
-
-        const newPasswordHash = await hash(newPassword);
-        user.passwordHash = newPasswordHash;
-        await user.save();
-
-        res.json({
-            message: 'Password has been updated',
-            user,
-        });
-    } catch (err) {
-        console.error('Error upon reset password confirmation:', err.message);
-        throw err;
-    }
+    res.json({
+        message: 'Password has been updated',
+    });
 });
 
 router.post('/login', (req, res, next) => {
     passport.authenticate('local', (err, user, info, status) => {
         if (err) {
-            if (err.status == 401)
-                return res.status(401).json({ message: err.message });
             return next(err);
         }
         req.login(user, (err) => {

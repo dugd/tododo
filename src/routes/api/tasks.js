@@ -26,7 +26,8 @@ router
             const task = await taskService.createTask(data, req.user._id);
             res.status(201).json(task);
         } catch (e) {
-            res.status(400).json({ message: e.message });
+            console.error('Error creation task:', e.message);
+            throw e;
         }
     });
 

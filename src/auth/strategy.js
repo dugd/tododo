@@ -1,7 +1,7 @@
 const passport = require('passport');
 const { Strategy: LocalStrategy } = require('passport-local');
 const User = require('../models/user');
-const { verify } = require('../utils/security');
+const { login } = require('../services/auth');
 
 passport.serializeUser((user, done) => {
     done(null, user._id);
@@ -28,19 +28,8 @@ passport.use(
         },
         async (email, password, done) => {
             try {
-                const user = await User.findOne({ email });
-                if (!user) {
-                    throw new Error('Incorrect email or password.');
-                }
-                if (!user.isActivated) {
-                    throw new Error('User is not activated.');
-                }
-
-                const isMatch = await verify(password, user.passwordHash);
-                if (!isMatch) {
-                    throw new Error('Incorrect email or password.');
-                }
-                return done(null, user);
+                const user = await login(email, password);
+                done(null, user);
             } catch (error) {
                 return done(error, null);
             }

@@ -1,4 +1,5 @@
 const express = require('express');
+const { AppError } = require('../error');
 
 const taskRouter = require('./api/tasks');
 const userRouter = require('./api/users');
@@ -11,14 +12,19 @@ apiRouter.use('/tasks', taskRouter);
 apiRouter.use('/users', userRouter);
 apiRouter.use('/auth', authRouter);
 
+apiRouter.use((err, req, res, next) => {
+    const status = err.status || 500;
+
+    if (err.loggable ?? true) {
+        console.error(err);
+    }
+
+    res.status(status).json({
+        message: err.message || 'Internal Server Error',
+    });
+});
+
 const pagesRouter = express.Router();
 pagesRouter.use('/', indexRouter);
-
-apiRouter.get('/test-session', async (req, res) => {
-    req.session.visited = true;
-    console.log(req.session);
-    console.log(req.session.id);
-    res.send('ok');
-});
 
 module.exports = { apiRouter, pagesRouter: pagesRouter };

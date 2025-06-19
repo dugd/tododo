@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const session = require('express-session');
 const passport = require('passport');
+const path = require('path');
 
 if (process.env.NODE_ENV !== 'production') {
     require('dotenv').config();
@@ -16,7 +17,7 @@ const port = process.env.PORT || 8080;
 const app = express();
 
 app.set('view engine', 'ejs');
-app.set('views', __dirname + '/views');
+app.set('views', path.resolve(__dirname, 'views'));
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());

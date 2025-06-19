@@ -11,3 +11,8 @@ body {
     max-width: 800px;
     margin: 0 auto;
 }
+
+.check-btn {
+    width: 2rem;
+    height: 2rem;
+}

@@ -1,4 +1,5 @@
 const express = require('express');
+const passport = require('passport');
 const mongoose = require('mongoose');
 const taskService = require('../../services/task');
 
@@ -78,6 +79,19 @@ router.post('/delete/:id', async (req, res) => {
 
     res.redirect('/');
 });
+
+router
+    .route('/login')
+    .get((req, res) => {
+        res.render('auth/login');
+    })
+    .post(
+        passport.authenticate('local', {
+            successRedirect: '/',
+            failureRedirect: '/login',
+            failureFlash: true,
+        })
+    );
 
 router.param('id', (req, res, next, id) => {
     if (!mongoose.Types.ObjectId.isValid(id)) {

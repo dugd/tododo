@@ -1,0 +1,28 @@
+<h2 class="card-title mb-4 text-center"><%= task ? "Edit Task" : "New Task" %></h2>
+
+<form action="<%= task ? `/edit/${task.id}` : '/add' %>" method="POST">
+    <div class="mb-3">
+        <label for="inputTitle" class="form-label">Title</label>
+        <input type="text" class="form-control" id="inputTitle" name="title" required value="<%= task?.title || '' %>"/>
+    </div>
+    <div class="mb-3">
+        <label for="textareaDesc" class="form-label">Description</label>
+        <textarea class="form-control" id="textareaDesc" rows="3" name="description"><%= task?.description || '' %></textarea>
+    </div>
+    <div class="mb-3">
+        <label for="inputDeadline" class="form-label">Deadline</label>
+        <input class="form-control" type="date" id="inputDeadline" name="deadline" value="<%= task?.deadline?.toISOString()?.slice(0, 10) || '' %>"/>
+    </div>
+    <div class="mb-3">
+        <label for="selectPriority" class="form-label">Priority</label>
+        <select class="form-select" id="selectPriority" name="priority">
+            <% for( let prior = 1; prior <= 3; prior++ ) { %>
+                <option value="<%= prior %>" <%= task?.priority === prior ? 'selected' : '' %> >
+                    <%= ['Low', 'Medium', 'High'][prior - 1] %> </option>
+            <% } %>
+        </select>
+    </div>
+    <div class="d-grid col-6 mx-auto">
+        <button type="submit" class="btn btn-primary"><%= task ? "Save" : "Create" %></button>
+    </div>
+</form>

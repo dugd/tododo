@@ -1,11 +1,11 @@
 const express = require('express');
-const { AppError } = require('../error');
 
 const taskRouter = require('./api/tasks');
 const userRouter = require('./api/users');
 const authRouter = require('./api/auth');
 
-const indexRouter = require('./pages/index');
+const tasksPageRouter = require('./pages/tasks');
+const authPageRouter = require('./pages/auth');
 
 const apiRouter = express.Router();
 apiRouter.use('/tasks', taskRouter);
@@ -25,6 +25,7 @@ apiRouter.use((err, req, res, next) => {
 });
 
 const pagesRouter = express.Router();
-pagesRouter.use('/', indexRouter);
+pagesRouter.use('/', tasksPageRouter);
+pagesRouter.use('/auth', authPageRouter);
 
 module.exports = { apiRouter, pagesRouter: pagesRouter };

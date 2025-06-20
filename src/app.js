@@ -1,4 +1,5 @@
 const express = require('express');
+const expressLayouts = require('express-ejs-layouts');
 const cors = require('cors');
 const session = require('express-session');
 const passport = require('passport');
@@ -18,6 +19,9 @@ const app = express();
 
 app.set('view engine', 'ejs');
 app.set('views', path.resolve(__dirname, 'views'));
+
+app.use(expressLayouts);
+app.set('layout', './layouts/main');
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());

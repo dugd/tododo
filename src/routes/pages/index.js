@@ -6,17 +6,64 @@ const router = express.Router();
 
 router.get('/', async (req, res) => {
     const tasks = await taskService.getAllTasks();
-    res.render('index', { tasks });
+    res.render('tasks/index', { tasks });
 });
 
-router.post('/add', async (req, res) => {
-    const { title } = req.body;
-    if (!title) return res.status(400).json({ message: 'title is required' });
+router
+    .route('/add')
+    .get((req, res) => {
+        res.render('tasks/task-form', { task: null });
+    })
+    .post(async (req, res) => {
+        const { title, description, deadline, priority } = req.body;
+        if (!title)
+            return res.status(400).json({ message: 'Title is required' });
 
-    const task = await taskService.createTask({ title });
+        const task = await taskService.createTask(
+            {
+                title: title.trim(),
+                description: description.trim(),
+                deadline: Date.parse(deadline),
+                priority: parseInt(priority),
+            }
+            // userId from session
+        );
 
-    res.redirect('/');
-});
+        res.redirect('/');
+    });
+
+router
+    .route('/edit/:id')
+    .get(async (req, res) => {
+        const id = req.id;
+        const task = await taskService.getTaskById(id);
+        if (!task) return res.status(404).json({ message: 'Not found' });
+        res.render('tasks/task-form', { task });
+    })
+    .post(async (req, res) => {
+        const { title, description, deadline, priority } = req.body;
+        const id = req.id;
+
+        if (!title || !title.trim()) {
+            return res.status(400).json({ message: 'Title is required' });
+        }
+
+        try {
+            const updated = await taskService.updateTask(
+                id,
+                {
+                    title: title.trim(),
+                    description: description.trim(),
+                    deadline: Date.parse(deadline),
+                    priority: parseInt(priority),
+                }
+                // userId from session
+            );
+            res.redirect('/');
+        } catch (e) {
+            console.error(e);
+        }
+    });
 
 router.post('/toggle/:id', async (req, res) => {
     const task = await taskService.toggleTask(req.params.id);
@@ -30,22 +77,6 @@ router.post('/delete/:id', async (req, res) => {
     if (!result) return res.status(404).json({ message: 'Not found' });
 
     res.redirect('/');
-});
-
-router.post('/edit/:id', async (req, res) => {
-    const { title } = req.body;
-    const id = req.id;
-
-    if (!title || !title.trim()) {
-        return res.status(400).json({ message: 'Title is required' });
-    }
-
-    try {
-        await taskService.updateTask(id, { title: title.trim() });
-        res.redirect('/');
-    } catch (e) {
-        console.error(e);
-    }
 });
 
 router.param('id', (req, res, next, id) => {

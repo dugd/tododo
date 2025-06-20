@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Tododo - Task</title>
+
+    <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css"
+    integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7"
+    crossorigin="anonymous">
+    <link rel="stylesheet" 
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+
+    <link rel="stylesheet" href="/styles/style.css">
+</head>
+<body>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"
+integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq"
+crossorigin="anonymous"></script>
+
+<script src="scripts/index.js" defer></script>
+
+<div class="container py-5">
+    <div class="todo-app card shadow">
+        <div class="card-body">
+            <h2 class="card-title mb-4 text-center"><%= task ? "Edit Task" : "New Task" %></h2>
+
+            <form action="<%= task ? `/edit/${task.id}` : '/add' %>" method="POST">
+                <div class="mb-3">
+                    <label for="inputTitle" class="form-label">Title</label>
+                    <input type="text" class="form-control" id="inputTitle" name="title" required value="<%= task?.title || '' %>"/>
+                </div>
+                <div class="mb-3">
+                    <label for="textareaDesc" class="form-label">Description</label>
+                    <textarea class="form-control" id="textareaDesc" rows="3" name="description"><%= task?.description || '' %></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="inputDeadline" class="form-label">Deadline</label>
+                    <input class="form-control" type="date" id="inputDeadline" name="deadline" value="<%= task?.deadline?.toISOString()?.slice(0, 10) || '' %>"/>
+                </div>
+                <div class="mb-3">
+                        <label for="selectPriority" class="form-label">Priority</label>
+                        <select class="form-select" id="selectPriority" name="priority">
+                            <% for( let prior = 1; prior <= 3; prior++ ) { %>
+                                <option value="<%= prior %>" <%= task?.priority === prior ? 'selected' : '' %> >
+                                    <%= ['Low', 'Medium', 'High'][prior - 1] %> </option>
+                            <% } %>
+                        </select>
+                    </div>
+                    <div class="d-grid col-6 mx-auto">
+                        <button type="submit" class="btn btn-primary"><%= task ? "Save" : "Create" %></button>
+                    </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

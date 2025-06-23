@@ -1,5 +1,7 @@
 const express = require('express');
 
+const { authLocals } = require('../auth/middleware');
+
 const taskRouter = require('./api/tasks');
 const userRouter = require('./api/users');
 const authRouter = require('./api/auth');
@@ -25,6 +27,7 @@ apiRouter.use((err, req, res, next) => {
 });
 
 const pagesRouter = express.Router();
+pagesRouter.use(authLocals);
 pagesRouter.use('/', tasksPageRouter);
 pagesRouter.use('/auth', authPageRouter);
 

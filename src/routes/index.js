@@ -1,4 +1,5 @@
 const express = require('express');
+const flash = require('connect-flash');
 
 const { authLocals } = require('../auth/middleware');
 
@@ -10,6 +11,7 @@ const tasksPageRouter = require('./pages/tasks');
 const authPageRouter = require('./pages/auth');
 
 const apiRouter = express.Router();
+
 apiRouter.use('/tasks', taskRouter);
 apiRouter.use('/users', userRouter);
 apiRouter.use('/auth', authRouter);
@@ -27,6 +29,14 @@ apiRouter.use((err, req, res, next) => {
 });
 
 const pagesRouter = express.Router();
+
+pagesRouter.use(flash());
+pagesRouter.use((req, res, next) => {
+    res.locals.success = req.flash('success');
+    res.locals.error = req.flash('error');
+    next();
+});
+
 pagesRouter.use(authLocals);
 pagesRouter.use('/', tasksPageRouter);
 pagesRouter.use('/auth', authPageRouter);

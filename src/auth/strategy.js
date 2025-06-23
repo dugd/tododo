@@ -2,6 +2,7 @@ const passport = require('passport');
 const { Strategy: LocalStrategy } = require('passport-local');
 const User = require('../models/user');
 const { login } = require('../services/auth');
+const { WrongCredentials, NotActivatedError } = require('../error/auth');
 
 passport.serializeUser((user, done) => {
     done(null, user._id);
@@ -29,8 +30,14 @@ passport.use(
         async (email, password, done) => {
             try {
                 const user = await login(email, password);
-                done(null, user);
+                done(null, user, { message: 'Login success' });
             } catch (error) {
+                if (
+                    error instanceof WrongCredentials ||
+                    error instanceof NotActivatedError
+                ) {
+                    return done(null, false, { message: error.message });
+                }
                 return done(error, null);
             }
         }

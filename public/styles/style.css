@@ -7,6 +7,15 @@ body {
     background: linear-gradient(135deg, #599f92, #9050d6);
 }
 
+.flash-messages {
+    position: fixed;
+    top: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9;
+    min-width: 320px;
+}
+
 .todo-app {
     max-width: 800px;
     margin: 0 auto;

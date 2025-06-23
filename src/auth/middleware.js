@@ -1,7 +1,6 @@
 const { UnauthorizedError } = require('../error/auth');
 
 function isAuthenticated(req, res, next) {
-    console.log('[AUTH MIDDLE]', req.originalUrl);
     if (req.isAuthenticated() && req.user) {
         return next();
     }

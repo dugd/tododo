@@ -8,7 +8,7 @@ const router = express.Router();
 router.use(isAuthenticated);
 
 router.get('/', async (req, res) => {
-    const tasks = await taskService.getAllTasks();
+    const tasks = await taskService.getAllTasks(req.user._id);
     res.render('tasks/index', { tasks });
 });
 
@@ -30,8 +30,8 @@ router
                 description: description.trim(),
                 deadline: Date.parse(deadline),
                 priority: parseInt(priority),
-            }
-            // userId from session
+            },
+            req.user._id
         );
 
         req.flash('success', 'Task is created');
@@ -67,8 +67,8 @@ router
                     description: description.trim(),
                     deadline: deadline ? Date.parse(deadline) : undefined,
                     priority: parseInt(priority),
-                }
-                // userId from session
+                },
+                req.user._id
             );
             req.flash('success', 'Task is updated');
             res.redirect('/tasks');
@@ -78,7 +78,7 @@ router
     });
 
 router.post('/toggle/:id', async (req, res) => {
-    const task = await taskService.toggleTask(req.id);
+    const task = await taskService.toggleTask(req.id, req.user._id);
     if (!task) {
         req.flash('error', 'Task not found');
         return res.redirect('/tasks');
@@ -88,7 +88,7 @@ router.post('/toggle/:id', async (req, res) => {
 });
 
 router.post('/delete/:id', async (req, res) => {
-    const result = await taskService.deleteTask(req.id);
+    const result = await taskService.deleteTask(req.id, req.user._id);
     if (!result) {
         req.flash('error', 'Task not found');
         return res.redirect('/tasks');

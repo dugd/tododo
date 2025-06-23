@@ -1,6 +1,6 @@
 <h2 class="card-title mb-4 text-center"><%= task ? "Edit Task" : "New Task" %></h2>
 
-<form action="<%= task ? `/edit/${task.id}` : '/add' %>" method="POST">
+<form action="<%= task ? `/tasks/edit/${task.id}` : '/tasks/add' %>" method="POST">
     <div class="mb-3">
         <label for="inputTitle" class="form-label">Title</label>
         <input type="text" class="form-control" id="inputTitle" name="title" required value="<%= task?.title || '' %>"/>

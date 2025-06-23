@@ -1,8 +1,11 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const taskService = require('../../services/task');
+const { isAuthenticated } = require('../../auth/middleware');
 
 const router = express.Router();
+
+router.use(isAuthenticated);
 
 router.get('/', async (req, res) => {
     const tasks = await taskService.getAllTasks();
@@ -32,7 +35,7 @@ router
         );
 
         req.flash('success', 'Task is created');
-        res.redirect('/');
+        res.redirect('/tasks');
     });
 
 router
@@ -42,7 +45,7 @@ router
         const task = await taskService.getTaskById(id);
         if (!task) {
             req.flash('error', 'Task not found');
-            return res.redirect('/');
+            return res.redirect('/tasks');
         }
         res.render('tasks/task-form', { task });
     })
@@ -68,7 +71,7 @@ router
                 // userId from session
             );
             req.flash('success', 'Task is updated');
-            res.redirect('/');
+            res.redirect('/tasks');
         } catch (e) {
             console.error(e);
         }
@@ -78,26 +81,27 @@ router.post('/toggle/:id', async (req, res) => {
     const task = await taskService.toggleTask(req.id);
     if (!task) {
         req.flash('error', 'Task not found');
-        return res.redirect('/');
+        return res.redirect('/tasks');
     }
 
-    res.redirect('/');
+    res.redirect('/tasks');
 });
 
 router.post('/delete/:id', async (req, res) => {
     const result = await taskService.deleteTask(req.id);
     if (!result) {
         req.flash('error', 'Task not found');
-        return res.redirect('/');
+        return res.redirect('/tasks');
     }
 
     req.flash('success', 'Task is deleted');
-    res.redirect('/');
+    res.redirect('/tasks');
 });
 
 router.param('id', (req, res, next, id) => {
     if (!mongoose.Types.ObjectId.isValid(id)) {
-        res.status(400).json({ message: 'Invalid ID format' });
+        req.flash('error', 'Invalid task ID format');
+        return res.redirect('/tasks');
     }
     req.id = id;
     next();

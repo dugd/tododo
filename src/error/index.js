@@ -11,8 +11,8 @@ class AppError extends Error {
 }
 
 class ValidationError extends AppError {
-    constructor(object = 'Validation failed', loggable = false) {
-        super(`${object} not found`, 400, loggable);
+    constructor(message = 'Validation failed', loggable = false) {
+        super(message, 400, loggable);
     }
 }
 

@@ -31,7 +31,7 @@ function generateActivateMail(token) {
 }
 
 function generateResetPasswordMail(token) {
-    const actionLink = `${process.env.ACTIVATION_URL}?token=${token}`;
+    const actionLink = `${process.env.RESET_PASSWORD_URL}?token=${token}`;
     return {
         subject: 'Reset password request on Tododo',
         text: `If your would like to reset your password, please go this link:

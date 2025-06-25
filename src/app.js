@@ -2,6 +2,8 @@ const express = require('express');
 const expressLayouts = require('express-ejs-layouts');
 const cors = require('cors');
 const session = require('express-session');
+const mongoose = require('mongoose');
+const MongoStore = require('connect-mongo');
 const passport = require('passport');
 const path = require('path');
 
@@ -36,6 +38,11 @@ app.use(
         cookie: {
             maxAge: 60000 * 60,
         },
+        store: MongoStore.create({
+            clientPromise: mongoose.connection
+                .asPromise() // resolves when connection is created
+                .then((con) => con.getClient()),
+        }),
     })
 );
 app.use(passport.initialize());

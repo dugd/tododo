@@ -12,19 +12,6 @@ const {
 const router = express.Router();
 
 router
-    .route('/login')
-    .get((req, res) => {
-        res.render('auth/login');
-    })
-    .post(
-        passport.authenticate('local', {
-            successRedirect: '/',
-            failureRedirect: '/auth/login',
-            failureFlash: true,
-        })
-    );
-
-router
     .route('/register')
     .get((req, res) => {
         res.render('auth/register');
@@ -47,7 +34,7 @@ router
         }
     });
 
-router.get('/activate', async (req, res, next) => {
+router.get('/activate', async (req, res) => {
     const { token } = req.query;
 
     if (!token) {
@@ -70,6 +57,95 @@ router.get('/activate', async (req, res, next) => {
         throw err;
     }
 });
+
+router
+    .route('/reset-password/request')
+    .get((req, res) => {
+        res.render('auth/reset-request');
+    })
+    .post(async (req, res) => {
+        const { email } = req.body;
+
+        if (!email) {
+            req.flash('error', 'Email is required');
+            return res.redirect('/auth/reset-password/request');
+        }
+
+        try {
+            const token = await resetPasswordRequest(email);
+            console.log(`Password reset token: ${token}`);
+
+            req.flash('success', 'Check your email to reset your password');
+            res.redirect('/auth/login');
+        } catch (err) {
+            if (err instanceof AppError) {
+                req.flash('error', err.message);
+                return res.redirect('/auth/reset-password/request');
+            }
+            throw err;
+        }
+    });
+
+router
+    .route('/reset-password/confirm')
+    .get((req, res) => {
+        const { token } = req.query;
+
+        if (!token) {
+            req.flash('error', 'Token is missing');
+            return res.redirect('/auth/reset-password/request');
+        }
+
+        res.render('auth/reset-confirm', { token });
+    })
+    .post(async (req, res) => {
+        const { token, newPassword } = req.body;
+
+        if (!token) {
+            req.flash('error', 'Token is missing');
+            return res.redirect('/auth/reset-password/request');
+        }
+
+        if (!newPassword) {
+            req.flash('error', 'New password is required');
+            return res.redirect(`/auth/reset-password/confirm?token=${token}`);
+        }
+
+        try {
+            const { userId, type } = jwtVerify(token);
+
+            if (type !== 'password') {
+                req.flash('error', 'Invalid token type');
+                return res.redirect('/auth/reset-password/request');
+            }
+
+            await resetPassword(userId, newPassword);
+
+            req.flash('success', 'Password updated');
+            res.redirect('/auth/login');
+        } catch (err) {
+            if (err instanceof AppError) {
+                req.flash('error', err.message);
+                return res.redirect(
+                    `/auth/reset-password/confirm?token=${token}`
+                );
+            }
+            throw err;
+        }
+    });
+
+router
+    .route('/login')
+    .get((req, res) => {
+        res.render('auth/login');
+    })
+    .post(
+        passport.authenticate('local', {
+            successRedirect: '/',
+            failureRedirect: '/auth/login',
+            failureFlash: true,
+        })
+    );
 
 router.post('/logout', (req, res) => {
     req.logout((err) => {

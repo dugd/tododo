@@ -1,0 +1,13 @@
+<h2 class="card-title mb-4 text-center">Reset Password</h2>
+
+<form action="/auth/reset-password/confirm" method="POST">
+    <div class="mb-3">
+        <input type="hidden" name="token" value="<%= token %>" />
+        <label for="newPassword" class="form-label">New password</label>
+        <input type="password" class="form-control" id="newPassword" name="newPassword" required />
+    </div>
+
+    <div class="d-grid">
+        <button type="submit" class="btn btn-primary">Change</button>
+    </div>
+</form>

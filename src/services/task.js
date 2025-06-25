@@ -64,7 +64,9 @@ async function toggleSubtask(id, index, userId) {
 }
 
 async function deleteTask(id, userId) {
-    return Task.findOneAndDelete({ _id: id, userId });
+    const filter = { _id: id };
+    if (userId) filter.userId = userId;
+    return Task.findOneAndDelete(filter);
 }
 
 module.exports = {

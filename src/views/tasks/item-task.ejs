@@ -1,6 +1,6 @@
 <li class="list-group-item d-flex justify-content-between align-items-center">
     <div class="d-flex align-items-center gap-4">
-        <form action="/toggle/<%= task.id %>" method="POST">
+        <form action="/tasks/toggle/<%= task.id %>" method="POST">
             <button class="btn btn-outline-secondary btn-sm rounded-circle d-flex align-items-center justify-content-center check-btn">
                 <% if (task.done) { %>
                     <i class="bi bi-check-lg"></i>
@@ -12,13 +12,13 @@
         <span class="task-title"><%= task.title %></span>
     </div>
     <div class="d-flex align-items-center gap-2">
-        <form action="/edit/<%= task.id %>" method="GET">
-            <button class="btn btn-primary btn-sm">
+        <form action="/tasks/edit/<%= task.id %>" method="GET">
+            <button class="btn btn-outline-primary btn-sm rounded-circle">
                 <i class="bi bi-pencil"></i>
             </button>
         </form>
-        <form action="/delete/<%= task.id %>" method="POST">
-            <button class="btn btn-danger btn-sm">
+        <form action="/tasks/delete/<%= task.id %>" method="POST">
+            <button class="btn btn-outline-danger btn-sm rounded-circle">
                 <i class="bi bi-trash3"></i>
             </button>
         </form>

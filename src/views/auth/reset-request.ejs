@@ -1,0 +1,12 @@
+<h2 class="card-title mb-4 text-center">Reset Password</h2>
+
+<form action="/auth/reset-password/request" method="POST">
+    <div class="mb-3">
+        <label for="email" class="form-label">Email address</label>
+        <input type="email" class="form-control" id="email" name="email" required />
+    </div>
+
+    <div class="d-grid">
+        <button type="submit" class="btn btn-primary">Send request</button>
+    </div>
+</form>

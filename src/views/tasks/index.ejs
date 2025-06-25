@@ -1,10 +1,11 @@
 <h2 class="card-title mb-4 text-center">Tododo List</h2>
-<form action="/add" method="GET">
-    <button class="btn btn-primary">Add</button>
-</form>
 
 <ul class="list-group">
     <% tasks.forEach(task => { %>
         <%- include('./item-task.ejs', { task }) %>
     <% }) %>
 </ul>
+
+<form class="d-grid mt-2" action="/tasks/add" method="GET">
+    <button class="btn btn-outline-primary">Add</button>
+</form>

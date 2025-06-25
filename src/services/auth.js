@@ -44,7 +44,10 @@ async function register({ name, email, password }) {
         throw new EmailIsTaken('Email is taken');
     }
 
+    const passwordHash = await hash(password);
+    const newUser = new User({ name, email, passwordHash, activate: false });
     await newUser.save();
+
     const token = jwtSign({ userId: newUser._id, type: 'activate' });
     setImmediate(() => {
         sendMail(email, generateActivateMail(token)).catch(console.error);
@@ -59,7 +62,7 @@ async function activate(userId) {
         throw new NotFoundError('User');
     }
     if (user.isActivated) {
-        throw new AppError('user is already activated', 400, false);
+        throw new AppError('User is already activated', 400, false);
     }
     user.isActivated = true;
     user.expireAt = undefined;

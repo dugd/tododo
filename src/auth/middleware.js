@@ -7,4 +7,10 @@ function isAuthenticated(req, res, next) {
     throw new UnauthorizedError();
 }
 
-module.exports = { isAuthenticated };
+function authLocals(req, res, next) {
+    res.locals.isAuthenticated = !!req.user;
+    res.locals.currentUser = req.user || null;
+    next();
+}
+
+module.exports = { isAuthenticated, authLocals };

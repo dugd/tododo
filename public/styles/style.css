@@ -25,3 +25,15 @@ body {
     width: 2rem;
     height: 2rem;
 }
+
+.priority-1 {
+    border-left: 4px solid #6c757d;
+}
+
+.priority-2 {
+    border-left: 4px solid #ffc107;
+}
+
+.priority-3 {
+    border-left: 4px solid #dc3545;
+}

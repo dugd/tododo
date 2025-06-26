@@ -53,7 +53,6 @@ router
     .post(async (req, res) => {
         const { title, description, deadline, priority, subtasks } = req.body;
         const id = req.id;
-        console.log(req.body);
 
         if (!title) {
             req.flash('error', 'Title is required');

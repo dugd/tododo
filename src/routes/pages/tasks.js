@@ -18,7 +18,7 @@ router
         res.render('tasks/task-form', { task: null });
     })
     .post(async (req, res) => {
-        const { title, description, deadline, priority } = req.body;
+        const { title, description, deadline, priority, subtasks } = req.body;
         if (!title) {
             req.flash('error', 'Title is required');
             return res.redirect('/tasks/add');
@@ -30,6 +30,7 @@ router
                 description: description.trim(),
                 deadline: Date.parse(deadline),
                 priority: parseInt(priority),
+                subtasks: Array.isArray(subtasks) ? subtasks : [],
             },
             req.user._id
         );
@@ -50,7 +51,7 @@ router
         res.render('tasks/task-form', { task });
     })
     .post(async (req, res) => {
-        const { title, description, deadline, priority } = req.body;
+        const { title, description, deadline, priority, subtasks } = req.body;
         const id = req.id;
         console.log(req.body);
 
@@ -67,6 +68,7 @@ router
                     description: description.trim(),
                     deadline: deadline ? Date.parse(deadline) : undefined,
                     priority: parseInt(priority),
+                    subtasks: Array.isArray(subtasks) ? subtasks : [],
                 },
                 req.user._id
             );
@@ -76,6 +78,21 @@ router
             console.error(e);
         }
     });
+
+router.post('/toggle/:id/:s_id', async (req, res) => {
+    const task = await taskService.toggleSubtask(
+        req.id,
+        req.s_id,
+        req.user._id
+    );
+
+    if (!task) {
+        req.flash('error', 'Subtask not found');
+        return res.redirect('/tasks');
+    }
+
+    res.redirect('/tasks');
+});
 
 router.post('/toggle/:id', async (req, res) => {
     const task = await taskService.toggleTask(req.id, req.user._id);
@@ -105,6 +122,16 @@ router.param('id', (req, res, next, id) => {
     }
     req.id = id;
     next();
+});
+
+router.param('s_id', async (req, res, next, s_id) => {
+    s_id = Number.parseInt(s_id);
+    if (!Number.isInteger(s_id)) {
+        req.flash('error', 'Invalid subtask ID format');
+    } else {
+        req.s_id = s_id;
+        next();
+    }
 });
 
 module.exports = router;

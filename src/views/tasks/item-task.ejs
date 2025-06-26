@@ -1,54 +1,81 @@
-<li class="list-group-item d-flex gap-3 <%= 'priority-' + (task.priority || 'medium') %>">
-    <div class="d-flex align-items-center">
-        <form action="/tasks/toggle/<%= task.id %>" method="POST" class="d-flex align-items-center">
-            <button
-                class="btn btn-outline-secondary btn-sm rounded-circle d-flex align-items-center justify-content-center check-btn">
-                <% if (task.done) { %>
-                    <i class="bi bi-check-lg"></i>
-                    <% } else { %>
-                        <i class="bi"></i>
-                        <% } %>
-            </button>
-        </form>
-    </div>
-    <div class="d-flex flex-column justify-content-center gap-1">
-        <div>
-            <span class="task-title <%= task.done ? 'text-decoration-line-through text-muted' : '' %>">
-                <%= task.title %>
-            </span>
-        </div>
-        <% if (task.deadline || task.description) { %>
-            <div class="d-flex justify-content-between text-muted small flex-wrap">
-                <% if (task.deadline) { %>
-                    <div class="d-flex align-items-center gap-1 me-3">
-                        <i class="bi bi-calendar-event <%= task.overdue ? 'text-danger' : '' %>"></i>
-                        <span class="<%= task.overdue ? 'text-danger' : '' %>">
-                            <%= task.deadline.toLocaleDateString() %>
-                        </span>
-                    </div>
-                    <% } %>
-
-                        <% if (task.description) { %>
-                            <div class="text-secondary small">
-                                <%= task.description.length> 50 ? task.description.slice(0, 50) + '...' :
-                                    task.description %>
-                            </div>
-                            <% } %>
-            </div>
+<li class="list-group-item d-flex flex-column gap-2 <%= 'priority-' + (task.priority || '2') %>">
+    <div class="d-flex gap-3">
+        <div class="d-flex align-items-center">
+            <% if (task.subtasks && task.subtasks.length > 0) { %>
+                <button class="toggle-subtasks-btn btn p-0 border-0 bg-transparent rounded-circle me-2" data-task-id="<%= task.id %>">
+                    <i class="bi bi-chevron-compact-down"></i>
+                </button>
+            <% } else { %>
+                <span class="toggle-subtasks-btn d-inline-block me-2"></span>
             <% } %>
+            <form action="/tasks/toggle/<%= task.id %>" method="POST" class="d-flex align-items-center">
+                <button
+                    class="btn btn-outline-secondary btn-sm rounded-circle check-btn">
+                    <% if (task.done) { %>
+                        <i class="bi bi-check-lg"></i>
+                        <% } else { %>
+                            <i class="bi"></i>
+                            <% } %>
+                </button>
+            </form>
+        </div>
+        <div class="d-flex flex-column justify-content-center gap-1">
+            <div>
+                <span class="task-title <%= task.done ? 'text-decoration-line-through text-muted' : '' %>">
+                    <%= task.title %>
+                </span>
+            </div>
+            <% if (task.deadline || task.description) { %>
+                <div class="d-flex justify-content-between text-muted small flex-wrap">
+                    <% if (task.deadline) { %>
+                        <div class="d-flex align-items-center gap-1 me-3">
+                            <i class="bi bi-calendar-event <%= task.overdue ? 'text-danger' : '' %>"></i>
+                            <span class="<%= task.overdue ? 'text-danger' : '' %>">
+                                <%= task.deadline.toLocaleDateString() %>
+                            </span>
+                        </div>
+                        <% } %>
+
+                            <% if (task.description) { %>
+                                <div class="text-secondary small">
+                                    <%= task.description.length> 50 ? task.description.slice(0, 50) + '...' :
+                                        task.description %>
+                                </div>
+                                <% } %>
+                </div>
+                <% } %>
+        </div>
+        <div class="d-flex align-items-center gap-2 ms-auto">
+            <form action="/tasks/edit/<%= task.id %>" method="GET" class="d-flex align-items-center">
+                <button class="btn btn-outline-primary btn-sm rounded-circle" title="Редагувати"
+                    style="width: 32px; height: 32px;">
+                    <i class="bi bi-pencil"></i>
+                </button>
+            </form>
+            <form action="/tasks/delete/<%= task.id %>" method="POST" class="d-flex align-items-center">
+                <button class="btn btn-outline-danger btn-sm rounded-circle" title="Видалити"
+                    style="width: 32px; height: 32px;">
+                    <i class="bi bi-trash3"></i>
+                </button>
+            </form>
+        </div>
     </div>
-    <div class="d-flex align-items-center gap-2 ms-auto">
-        <form action="/tasks/edit/<%= task.id %>" method="GET" class="d-flex align-items-center">
-            <button class="btn btn-outline-primary btn-sm rounded-circle" title="Редагувати"
-                style="width: 32px; height: 32px;">
-                <i class="bi bi-pencil"></i>
-            </button>
-        </form>
-        <form action="/tasks/delete/<%= task.id %>" method="POST" class="d-flex align-items-center">
-            <button class="btn btn-outline-danger btn-sm rounded-circle" title="Видалити"
-                style="width: 32px; height: 32px;">
-                <i class="bi bi-trash3"></i>
-            </button>
-        </form>
-    </div>
+    <% if (task.subtasks && task.subtasks.length > 0) { %>
+        <ul class="list-group subtasks-list mt-2 ms-2 d-none" id="subtasks-<%= task.id %>">
+        <% task.subtasks.forEach((sub, i) => { %>
+            <li class="py-1 px-2 mb-1 d-flex gap-2 align-items-center small border-start border-2 rounded-1">
+                    <form action="/tasks/toggle/<%= task.id %>/<%= i %>" method="POST" class="d-flex align-items-center">
+                        <button class="btn btn-outline-secondary btn-sm rounded-circle d-flex align-items-center justify-content-center check-btn-sm">
+                            <% if (sub.done) { %>
+                                <i class="bi bi-check-lg"></i>
+                            <% } else { %>  
+                                <i class="bi"></i>
+                            <% } %>
+                        </button>
+                    </form>
+                    <span class="<%= sub.done ? 'text-decoration-line-through text-muted' : '' %>"><%= sub.title %></span>
+                </li>
+            <% }); %>
+        </ul>
+        <% } %>
 </li>

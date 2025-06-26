@@ -26,6 +26,16 @@ body {
     height: 2rem;
 }
 
+.check-btn-sm {
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+.toggle-subtasks-btn {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
 .priority-1 {
     border-left: 4px solid #6c757d;
 }

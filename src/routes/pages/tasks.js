@@ -18,7 +18,7 @@ router
         res.render('tasks/task-form', { task: null });
     })
     .post(async (req, res) => {
-        const { title, description, deadline, priority } = req.body;
+        const { title, description, deadline, priority, subtasks } = req.body;
         if (!title) {
             req.flash('error', 'Title is required');
             return res.redirect('/tasks/add');
@@ -30,6 +30,7 @@ router
                 description: description.trim(),
                 deadline: Date.parse(deadline),
                 priority: parseInt(priority),
+                subtasks: Array.isArray(subtasks) ? subtasks : [],
             },
             req.user._id
         );
@@ -50,7 +51,7 @@ router
         res.render('tasks/task-form', { task });
     })
     .post(async (req, res) => {
-        const { title, description, deadline, priority } = req.body;
+        const { title, description, deadline, priority, subtasks } = req.body;
         const id = req.id;
         console.log(req.body);
 
@@ -67,6 +68,7 @@ router
                     description: description.trim(),
                     deadline: deadline ? Date.parse(deadline) : undefined,
                     priority: parseInt(priority),
+                    subtasks: Array.isArray(subtasks) ? subtasks : [],
                 },
                 req.user._id
             );

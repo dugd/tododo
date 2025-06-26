@@ -22,6 +22,27 @@
             <% } %>
         </select>
     </div>
+
+    <div class="mb-3">
+        <label class="form-label" for="subtasks[]">Subtasks</label>
+        <div id="subtasks-container" class="d-flex flex-column gap-2">
+            <% if (task?.subtasks?.length > 0) { %>
+                <% task.subtasks.forEach((subtask, index) => { %>
+                    <div class="input-group subtask-row">
+                        <input type="text" class="form-control" name="subtasks[<%= index %>][title]" value="<%= subtask.title %>" required placeholder="Subtask title"/>
+                        <input type="hidden" name="subtasks[<%= index %>][done]" value="<%= subtask.done %>" />
+                        <button type="button" class="btn btn-outline-danger remove-subtask-btn">
+                            <i class="bi bi-x"></i>
+                        </button>
+                    </div>
+                <% }) %>
+            <% } %>
+        </div>
+        <button type="button" id="add-subtask-btn" class="btn btn-sm btn-outline-primary mt-2">
+            <i class="bi bi-plus"></i> Add Subtask
+        </button>
+    </div>
+
     <div class="d-grid col-6 mx-auto">
         <button type="submit" class="btn btn-primary"><%= task ? "Save" : "Create" %></button>
     </div>

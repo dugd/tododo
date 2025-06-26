@@ -77,6 +77,21 @@ router
         }
     });
 
+router.post('/toggle/:id/:s_id', async (req, res) => {
+    const task = await taskService.toggleSubtask(
+        req.id,
+        req.s_id,
+        req.user._id
+    );
+
+    if (!task) {
+        req.flash('error', 'Subtask not found');
+        return res.redirect('/tasks');
+    }
+
+    res.redirect('/tasks');
+});
+
 router.post('/toggle/:id', async (req, res) => {
     const task = await taskService.toggleTask(req.id, req.user._id);
     if (!task) {
@@ -105,6 +120,16 @@ router.param('id', (req, res, next, id) => {
     }
     req.id = id;
     next();
+});
+
+router.param('s_id', async (req, res, next, s_id) => {
+    s_id = Number.parseInt(s_id);
+    if (!Number.isInteger(s_id)) {
+        req.flash('error', 'Invalid subtask ID format');
+    } else {
+        req.s_id = s_id;
+        next();
+    }
 });
 
 module.exports = router;

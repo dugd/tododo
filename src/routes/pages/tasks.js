@@ -135,6 +135,7 @@ router.param('s_id', async (req, res, next, s_id) => {
     s_id = Number.parseInt(s_id);
     if (!Number.isInteger(s_id)) {
         req.flash('error', 'Invalid subtask ID format');
+        return res.redirect('/tasks');
     } else {
         req.s_id = s_id;
         next();

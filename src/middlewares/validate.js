@@ -12,6 +12,7 @@ const validateAPI = (req, res, next) => {
 const validateView =
     (redirectTo = 'back') =>
     (req, res, next) => {
+        if (typeof redirectTo == 'function') redirectTo = redirectTo(req);
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             const message = errors.array()[0].msg;

@@ -7,15 +7,18 @@ const baseValidation = [
         .isString()
         .withMessage('title must be a string'),
 
-    body('done').optional().isBoolean().withMessage('done must be a boolean'),
+    body('done')
+        .optional({ values: 'null' })
+        .isBoolean()
+        .withMessage('done must be a boolean'),
 
     body('description')
-        .optional()
+        .optional({ values: 'falsy' })
         .isString()
         .withMessage('description must be a string'),
 
     body('deadline')
-        .optional()
+        .optional({ values: 'falsy' })
         .custom((value) => {
             if (isNaN(Date.parse(value))) {
                 throw new Error('deadline must be a date format');
@@ -24,12 +27,12 @@ const baseValidation = [
         }),
 
     body('priority')
-        .optional()
+        .optional({ values: 'falsy' })
         .isInt({ min: 1, max: 3 })
         .withMessage('priority must be an integer between 1 and 3'),
 
     body('subtasks')
-        .optional()
+        .optional({ values: 'null' })
         .isArray()
         .withMessage('subtasks must be an array'),
 
@@ -45,7 +48,7 @@ const baseValidation = [
         .withMessage('subtask.title must be a string'),
 
     body('subtasks.*.done')
-        .optional()
+        .optional({ values: 'falsy' })
         .isBoolean()
         .withMessage('subtask.done must be a boolean'),
 ];

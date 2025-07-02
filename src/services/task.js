@@ -13,7 +13,7 @@ async function getAllTasks(userId = null, sortObj = {}, pagination = {}) {
     return query;
 }
 
-async function getActiveTasks(userId = null) {
+async function getActiveTasks(userId = null, sortObj = {}, pagination = {}) {
     const filter = { done: false };
     if (userId) filter.userId = userId;
 
@@ -27,7 +27,7 @@ async function getActiveTasks(userId = null) {
     return query;
 }
 
-async function getOverdueTasks(userId = null) {
+async function getOverdueTasks(userId = null, sortObj = {}, pagination = {}) {
     const filter = { done: false };
     if (userId) filter.userId = userId;
 

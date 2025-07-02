@@ -14,7 +14,14 @@ const router = express.Router();
 router.use(isAuthenticated);
 
 router.get('/', sortQueries, async (req, res) => {
-    const tasks = await taskService.getAllTasks(req.user._id, req.sortObj);
+    const { filter = 'active' } = req.query;
+    let getTasks =
+        {
+            active: taskService.getActiveTasks,
+            all: taskService.getAllTasks,
+            overdue: taskService.getOverdueTasks,
+        }[filter] ?? taskService.getActiveTasks;
+    const tasks = await getTasks(req.user._id, req.sortObj);
     res.render('tasks/index', { tasks });
 });
 

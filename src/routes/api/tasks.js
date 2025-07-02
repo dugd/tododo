@@ -6,6 +6,7 @@ const {
     createValidation,
     updateValidation,
 } = require('../../validation/tasks');
+const validate = require('../../middlewares/validate');
 
 const router = express.Router();
 
@@ -17,10 +18,8 @@ router
         const tasks = await taskService.getAllTasks(req.user._id);
         res.json(tasks);
     })
-    .post(createValidation, async (req, res) => {
-        const {
-            data: { title, description, deadline, priority, subtasks },
-        } = req.body;
+    .post(createValidation, validate, async (req, res) => {
+        const data = req.body;
 
         try {
             const task = await taskService.createTask(data, req.user._id);
@@ -48,7 +47,7 @@ router
         if (!task) return res.status(404).json({ message: 'Not found' });
         res.json(task);
     })
-    .put(updateValidation, async (req, res) => {
+    .put(updateValidation, validate, async (req, res) => {
         const data = req.body;
 
         const task = await taskService.updateTask(req.id, data, req.user._id);

@@ -7,13 +7,14 @@ const {
     updateValidation,
 } = require('../../validation/tasks');
 const { validateView } = require('../../middlewares/validate');
+const { sortQueries } = require('../../middlewares/query');
 
 const router = express.Router();
 
 router.use(isAuthenticated);
 
-router.get('/', async (req, res) => {
-    const tasks = await taskService.getAllTasks(req.user._id);
+router.get('/', sortQueries, async (req, res) => {
+    const tasks = await taskService.getAllTasks(req.user._id, req.sortObj);
     res.render('tasks/index', { tasks });
 });
 

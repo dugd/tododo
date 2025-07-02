@@ -7,6 +7,7 @@ const {
     updateValidation,
 } = require('../../validation/tasks');
 const { validateAPI } = require('../../middlewares/validate');
+const { sortQueries, paginationQueries } = require('../../middlewares/query');
 
 const router = express.Router();
 
@@ -14,8 +15,12 @@ router.use(isAuthenticated);
 
 router
     .route('/')
-    .get(async (req, res) => {
-        const tasks = await taskService.getAllTasks(req.user._id);
+    .get(sortQueries, paginationQueries, async (req, res) => {
+        const tasks = await taskService.getAllTasks(
+            req.user._id,
+            req.sortObj,
+            req.pagination
+        );
         res.json(tasks);
     })
     .post(createValidation, validateAPI, async (req, res) => {
@@ -39,13 +44,21 @@ router
         }
     });
 
-router.get('/active', async (req, res) => {
-    const tasks = await taskService.getActiveTasks(req.user._id);
+router.get('/active', sortQueries, paginationQueries, async (req, res) => {
+    const tasks = await taskService.getActiveTasks(
+        req.user._id,
+        req.sortObj,
+        req.pagination
+    );
     res.json(tasks);
 });
 
-router.get('/overdue', async (req, res) => {
-    const tasks = await taskService.getOverdueTasks(req.user._id);
+router.get('/overdue', sortQueries, paginationQueries, async (req, res) => {
+    const tasks = await taskService.getOverdueTasks(
+        req.user._id,
+        req.sortObj,
+        req.pagination
+    );
     res.json(tasks);
 });
 

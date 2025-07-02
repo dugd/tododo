@@ -3,6 +3,7 @@ const regex = require('../utils/regex');
 
 const registerUser = [
     body('name')
+        .trim()
         .notEmpty()
         .withMessage('name is required')
         .isString()

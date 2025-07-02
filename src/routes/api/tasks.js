@@ -19,10 +19,19 @@ router
         res.json(tasks);
     })
     .post(createValidation, validateAPI, async (req, res) => {
-        const data = req.body;
+        const { title, description, deadline, priority, subtasks } = req.body;
 
         try {
-            const task = await taskService.createTask(data, req.user._id);
+            const task = await taskService.createTask(
+                {
+                    title,
+                    description,
+                    deadline: new Date(deadline),
+                    priority: parseInt(priority),
+                    subtasks: subtasks,
+                },
+                req.user._id
+            );
             res.status(201).json(task);
         } catch (e) {
             console.error('Error creation task:', e.message);
@@ -48,9 +57,19 @@ router
         res.json(task);
     })
     .put(updateValidation, validateAPI, async (req, res) => {
-        const data = req.body;
+        const { title, description, deadline, priority, subtasks } = req.body;
 
-        const task = await taskService.updateTask(req.id, data, req.user._id);
+        const task = await taskService.updateTask(
+            req.id,
+            {
+                title,
+                description,
+                deadline: new Date(deadline),
+                priority: parseInt(priority),
+                subtasks: subtasks,
+            },
+            req.user._id
+        );
         if (!task) return res.status(404).json({ message: 'Not found' });
 
         res.json(task);

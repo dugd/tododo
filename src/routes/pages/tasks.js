@@ -28,11 +28,11 @@ router
 
         const task = await taskService.createTask(
             {
-                title: title.trim(),
-                description: description.trim() || null,
-                deadline: deadline ? Date.parse(deadline) : null,
-                priority: priority ? parseInt(priority) : null,
-                subtasks: Array.isArray(subtasks) ? subtasks : [],
+                title,
+                description,
+                deadline: new Date(deadline),
+                priority: parseInt(priority),
+                subtasks: subtasks,
             },
             req.user._id
         );
@@ -65,11 +65,11 @@ router
                 const updated = await taskService.updateTask(
                     id,
                     {
-                        title: title.trim(),
-                        description: description.trim() || null,
-                        deadline: deadline ? Date.parse(deadline) : null,
-                        priority: priority ? parseInt(priority) : null,
-                        subtasks: Array.isArray(subtasks) ? subtasks : [],
+                        title,
+                        description,
+                        deadline: new Date(deadline),
+                        priority: parseInt(priority),
+                        subtasks,
                     },
                     req.user._id
                 );

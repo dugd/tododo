@@ -2,6 +2,7 @@ const { body } = require('express-validator');
 
 const baseValidation = [
     body('title')
+        .trim()
         .notEmpty()
         .withMessage('title is required')
         .isString()
@@ -13,15 +14,19 @@ const baseValidation = [
         .withMessage('done must be a boolean'),
 
     body('description')
+        .trim()
         .optional({ values: 'falsy' })
         .isString()
         .withMessage('description must be a string'),
 
     body('deadline')
         .optional({ values: 'falsy' })
+        .matches(/^\d{4}-\d{2}-\d{2}$/)
+        .withMessage('deadline must be in format YYYY-MM-DD')
         .custom((value) => {
-            if (isNaN(Date.parse(value))) {
-                throw new Error('deadline must be a date format');
+            const date = new Date(value);
+            if (isNaN(date.getTime())) {
+                throw new Error('Invalid deadline date');
             }
             return true;
         }),

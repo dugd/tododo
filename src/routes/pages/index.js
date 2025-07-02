@@ -2,7 +2,7 @@ const express = require('express');
 const flash = require('connect-flash');
 
 const { authLocals } = require('../../auth/middleware');
-const { apiErrorHandler } = require('../../middlewares/error');
+const { viewErrorHandler } = require('../../middlewares/error');
 
 const tasksRouter = require('./tasks');
 const authRouter = require('./auth');
@@ -20,7 +20,7 @@ pagesRouter.use(authLocals);
 pagesRouter.use('/auth', authRouter);
 pagesRouter.use('/tasks', tasksRouter);
 
-pagesRouter.use(apiErrorHandler);
+pagesRouter.use(viewErrorHandler);
 
 pagesRouter.get('/', (req, res) => {
     res.redirect('/tasks');

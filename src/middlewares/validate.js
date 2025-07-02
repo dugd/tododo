@@ -1,7 +1,7 @@
 const { validationResult } = require('express-validator');
 const { ValidationError } = require('../error');
 
-const validate = (req, res, next) => {
+const validateAPI = (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         throw new ValidationError(undefined, errors.array());
@@ -9,4 +9,18 @@ const validate = (req, res, next) => {
     next();
 };
 
-module.exports = validate;
+const validateView =
+    (redirectTo = 'back') =>
+    (req, res, next) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            const message = errors.array()[0].msg;
+            req.flash('error', message);
+            return res.redirect(
+                redirectTo === 'back' ? req.get('Referrer') || '/' : redirectTo
+            );
+        }
+        next();
+    };
+
+module.exports = { validateAPI, validateView };

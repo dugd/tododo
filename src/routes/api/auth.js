@@ -15,7 +15,7 @@ const {
     sendEmail,
     sendNewPassword,
 } = require('../../validation/auth');
-const validate = require('../../middlewares/validate');
+const { validateAPI } = require('../../middlewares/validate');
 const { ValidationError } = require('../../error');
 
 const router = express.Router();
@@ -43,7 +43,7 @@ function jwtTokenParser(req, res, next) {
     next();
 }
 
-router.post('/register', registerUser, validate, async (req, res) => {
+router.post('/register', registerUser, validateAPI, async (req, res) => {
     const { name, email, password } = req.body;
 
     const token = await register({ name, email, password });
@@ -72,7 +72,7 @@ router.post('/activate', jwtTokenParser, async (req, res) => {
 router.post(
     '/reset-password/request',
     sendEmail,
-    validate,
+    validateAPI,
     async (req, res) => {
         const { email } = req.body;
 
@@ -88,7 +88,7 @@ router.post(
     '/reset-password/confirm',
     jwtTokenParser,
     sendNewPassword,
-    validate,
+    validateAPI,
     async (req, res) => {
         const { userId, type: tokenType } = req.tokenPayload;
         if (tokenType !== 'password' || !userId) {
@@ -105,7 +105,7 @@ router.post(
     }
 );
 
-router.post('/login', loginUser, validate, (req, res, next) => {
+router.post('/login', loginUser, validateAPI, (req, res, next) => {
     passport.authenticate('local', (err, user, info, status) => {
         if (err) {
             return next(err);

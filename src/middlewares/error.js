@@ -7,7 +7,7 @@ const apiErrorHandler = (err, req, res, next) => {
 
     res.status(status).json({
         message: err.message || 'Internal Server Error',
-        errors: err.errors || null,
+        errors: err.errors || undefined,
     });
 };
 

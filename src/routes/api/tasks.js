@@ -6,7 +6,7 @@ const {
     createValidation,
     updateValidation,
 } = require('../../validation/tasks');
-const validate = require('../../middlewares/validate');
+const { validateAPI } = require('../../middlewares/validate');
 
 const router = express.Router();
 
@@ -18,7 +18,7 @@ router
         const tasks = await taskService.getAllTasks(req.user._id);
         res.json(tasks);
     })
-    .post(createValidation, validate, async (req, res) => {
+    .post(createValidation, validateAPI, async (req, res) => {
         const data = req.body;
 
         try {
@@ -47,7 +47,7 @@ router
         if (!task) return res.status(404).json({ message: 'Not found' });
         res.json(task);
     })
-    .put(updateValidation, validate, async (req, res) => {
+    .put(updateValidation, validateAPI, async (req, res) => {
         const data = req.body;
 
         const task = await taskService.updateTask(req.id, data, req.user._id);

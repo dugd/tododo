@@ -16,9 +16,9 @@ POST {{baseUrl}}/tasks
 Content-Type: application/json
 
 {
-  "title": "Test Task",
+  "title": "Test task",
   "description": "This is a test task.",
-  "dueDate": "2025-12-31T23:59:59Z"
+  "deadline": "2025-12-31"
 }
 
 ###

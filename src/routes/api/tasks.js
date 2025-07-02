@@ -6,6 +6,7 @@ const {
     createValidation,
     updateValidation,
 } = require('../../validation/tasks');
+const { validateAPI } = require('../../middlewares/validate');
 
 const router = express.Router();
 
@@ -17,13 +18,20 @@ router
         const tasks = await taskService.getAllTasks(req.user._id);
         res.json(tasks);
     })
-    .post(createValidation, async (req, res) => {
-        const {
-            data: { title, description, deadline, priority, subtasks },
-        } = req.body;
+    .post(createValidation, validateAPI, async (req, res) => {
+        const { title, description, deadline, priority, subtasks } = req.body;
 
         try {
-            const task = await taskService.createTask(data, req.user._id);
+            const task = await taskService.createTask(
+                {
+                    title,
+                    description,
+                    deadline: new Date(deadline),
+                    priority: parseInt(priority),
+                    subtasks: subtasks,
+                },
+                req.user._id
+            );
             res.status(201).json(task);
         } catch (e) {
             console.error('Error creation task:', e.message);
@@ -48,10 +56,20 @@ router
         if (!task) return res.status(404).json({ message: 'Not found' });
         res.json(task);
     })
-    .put(updateValidation, async (req, res) => {
-        const data = req.body;
+    .put(updateValidation, validateAPI, async (req, res) => {
+        const { title, description, deadline, priority, subtasks } = req.body;
 
-        const task = await taskService.updateTask(req.id, data, req.user._id);
+        const task = await taskService.updateTask(
+            req.id,
+            {
+                title,
+                description,
+                deadline: new Date(deadline),
+                priority: parseInt(priority),
+                subtasks: subtasks,
+            },
+            req.user._id
+        );
         if (!task) return res.status(404).json({ message: 'Not found' });
 
         res.json(task);

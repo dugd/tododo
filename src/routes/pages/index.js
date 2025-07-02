@@ -2,6 +2,7 @@ const express = require('express');
 const flash = require('connect-flash');
 
 const { authLocals } = require('../../auth/middleware');
+const { viewErrorHandler } = require('../../middlewares/error');
 
 const tasksRouter = require('./tasks');
 const authRouter = require('./auth');
@@ -19,23 +20,7 @@ pagesRouter.use(authLocals);
 pagesRouter.use('/auth', authRouter);
 pagesRouter.use('/tasks', tasksRouter);
 
-pagesRouter.use((err, req, res, next) => {
-    const status = err.status || 500;
-    console.error(err);
-
-    if (err.loggable ?? true) {
-        console.error(err);
-    }
-
-    if (status === 401) {
-        req.flash('error', 'Not authorized');
-        return res.redirect('/auth/login');
-    }
-
-    res.status(status).render('error', {
-        message: err.message || 'Internal server Error',
-    });
-});
+pagesRouter.use(viewErrorHandler);
 
 pagesRouter.get('/', (req, res) => {
     res.redirect('/tasks');

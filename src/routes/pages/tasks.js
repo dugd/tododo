@@ -2,6 +2,11 @@ const express = require('express');
 const mongoose = require('mongoose');
 const taskService = require('../../services/task');
 const { isAuthenticated } = require('../../auth/middleware');
+const {
+    createValidation,
+    updateValidation,
+} = require('../../validation/tasks');
+const { validateView } = require('../../middlewares/validate');
 
 const router = express.Router();
 
@@ -17,20 +22,17 @@ router
     .get((req, res) => {
         res.render('tasks/task-form', { task: null });
     })
-    .post(async (req, res) => {
+    .post(createValidation, validateView('/tasks/add'), async (req, res) => {
+        console.log(req.body);
         const { title, description, deadline, priority, subtasks } = req.body;
-        if (!title) {
-            req.flash('error', 'Title is required');
-            return res.redirect('/tasks/add');
-        }
 
         const task = await taskService.createTask(
             {
-                title: title.trim(),
-                description: description.trim(),
-                deadline: Date.parse(deadline),
+                title,
+                description,
+                deadline: new Date(deadline),
                 priority: parseInt(priority),
-                subtasks: Array.isArray(subtasks) ? subtasks : [],
+                subtasks: subtasks,
             },
             req.user._id
         );
@@ -50,33 +52,39 @@ router
         }
         res.render('tasks/task-form', { task });
     })
-    .post(async (req, res) => {
-        const { title, description, deadline, priority, subtasks } = req.body;
-        const id = req.id;
+    .post(
+        updateValidation,
+        validateView((req) => `/tasks/edit/${req.id}`),
+        validateView('/tasks/add'),
+        async (req, res) => {
+            const { title, description, deadline, priority, subtasks } =
+                req.body;
+            const id = req.id;
 
-        if (!title) {
-            req.flash('error', 'Title is required');
-            return res.redirect(`/tasks/edit/${req.id}`);
-        }
+            try {
+                const updated = await taskService.updateTask(
+                    id,
+                    {
+                        title,
+                        description,
+                        deadline: new Date(deadline),
+                        priority: parseInt(priority),
+                        subtasks,
+                    },
+                    req.user._id
+                );
+                if (!updated) {
+                    req.flash('error', 'Task not found');
+                    return res.redirect('/tasks');
+                }
 
-        try {
-            const updated = await taskService.updateTask(
-                id,
-                {
-                    title: title.trim(),
-                    description: description.trim(),
-                    deadline: deadline ? Date.parse(deadline) : undefined,
-                    priority: parseInt(priority),
-                    subtasks: Array.isArray(subtasks) ? subtasks : [],
-                },
-                req.user._id
-            );
-            req.flash('success', 'Task is updated');
-            res.redirect('/tasks');
-        } catch (e) {
-            console.error(e);
+                req.flash('success', 'Task is updated');
+                res.redirect('/tasks');
+            } catch (e) {
+                console.error(e);
+            }
         }
-    });
+    );
 
 router.post('/toggle/:id/:s_id', async (req, res) => {
     const task = await taskService.toggleSubtask(
@@ -127,6 +135,7 @@ router.param('s_id', async (req, res, next, s_id) => {
     s_id = Number.parseInt(s_id);
     if (!Number.isInteger(s_id)) {
         req.flash('error', 'Invalid subtask ID format');
+        return res.redirect('/tasks');
     } else {
         req.s_id = s_id;
         next();

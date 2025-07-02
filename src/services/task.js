@@ -29,11 +29,11 @@ async function createTask(
     userId
 ) {
     const task = new Task({
-        title,
-        description,
-        deadline,
-        priority,
-        subtasks,
+        title: title.trim(),
+        description: description.trim() || null,
+        deadline: deadline || null,
+        priority: priority || undefined,
+        subtasks: subtasks || [],
         userId,
     });
     return task.save();
@@ -45,7 +45,14 @@ async function updateTask(
     userId
 ) {
     const filter = { _id: id, userId };
-    const update = { title, done, description, deadline, priority, subtasks };
+    const update = {
+        title: title.trim(),
+        done,
+        description: description.trim() || null,
+        deadline: deadline || null,
+        priority: priority || undefined,
+        subtasks: subtasks || [],
+    };
     return Task.findOneAndUpdate(filter, update, { new: true });
 }
 

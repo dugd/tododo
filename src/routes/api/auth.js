@@ -9,6 +9,13 @@ const {
     resetPasswordRequest,
     activate,
 } = require('../../services/auth');
+const {
+    loginUser,
+    registerUser,
+    sendEmail,
+    sendNewPassword,
+} = require('../../validation/auth');
+const { validateAPI } = require('../../middlewares/validate');
 const { ValidationError } = require('../../error');
 
 const router = express.Router();
@@ -36,12 +43,8 @@ function jwtTokenParser(req, res, next) {
     next();
 }
 
-router.post('/register', async (req, res) => {
+router.post('/register', registerUser, validateAPI, async (req, res) => {
     const { name, email, password } = req.body;
-
-    if (!name || !email || !password) {
-        throw new ValidationError('Name, email and password are required');
-    }
 
     const token = await register({ name, email, password });
 
@@ -54,9 +57,11 @@ router.post('/register', async (req, res) => {
 
 router.post('/activate', jwtTokenParser, async (req, res) => {
     const { userId, type: tokenType } = req.tokenPayload;
+
     if (tokenType !== 'activate' || !userId) {
         throw new ValidationError('Invalid token payload');
     }
+
     const user = await activate(req.tokenPayload);
     res.json({
         message: 'User has been activated',
@@ -64,38 +69,43 @@ router.post('/activate', jwtTokenParser, async (req, res) => {
     });
 });
 
-router.post('/reset-password/request', async (req, res) => {
-    const { email } = req.body;
-    if (!email) {
-        throw new ValidationError('Email is required');
+router.post(
+    '/reset-password/request',
+    sendEmail,
+    validateAPI,
+    async (req, res) => {
+        const { email } = req.body;
+
+        const token = await resetPasswordRequest(email);
+        res.status(201).json({
+            message: 'Check your email to reset your password',
+            token,
+        });
     }
-    const token = await resetPasswordRequest(email);
-    res.status(201).json({
-        message: 'Check your email to reset your password',
-        token,
-    });
-});
+);
 
-router.post('/reset-password/confirm', jwtTokenParser, async (req, res) => {
-    const { userId, type: tokenType } = req.tokenPayload;
-    if (tokenType !== 'password' || !userId) {
-        throw new ValidationError('Invalid token payload');
+router.post(
+    '/reset-password/confirm',
+    jwtTokenParser,
+    sendNewPassword,
+    validateAPI,
+    async (req, res) => {
+        const { userId, type: tokenType } = req.tokenPayload;
+        if (tokenType !== 'password' || !userId) {
+            throw new ValidationError('Invalid token payload');
+        }
+
+        const { newPassword } = req.body;
+
+        await resetPassword(req.tokenPayload, newPassword);
+
+        res.json({
+            message: 'Password has been updated',
+        });
     }
+);
 
-    const { newPassword } = req.body;
-
-    if (!newPassword) {
-        throw new ValidationError('New password is required');
-    }
-
-    await resetPassword(req.tokenPayload, newPassword);
-
-    res.json({
-        message: 'Password has been updated',
-    });
-});
-
-router.post('/login', (req, res, next) => {
+router.post('/login', loginUser, validateAPI, (req, res, next) => {
     passport.authenticate('local', (err, user, info, status) => {
         if (err) {
             return next(err);

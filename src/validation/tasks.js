@@ -1,84 +1,66 @@
-function validateTask(data, isUpdate = false) {
-    const errors = [];
-    const { title, done, description, deadline, priority, subtasks } = data;
+const { body } = require('express-validator');
 
-    if (!isUpdate && typeof title !== 'string') {
-        errors.push('title is required and must be a string');
-    } else if (title && typeof title !== 'string') {
-        errors.push('title must be a string');
-    }
+const baseValidation = [
+    body('title')
+        .trim()
+        .notEmpty()
+        .withMessage('title is required')
+        .isString()
+        .withMessage('title must be a string'),
 
-    if (done !== undefined && typeof done !== 'boolean') {
-        errors.push('done must be a boolean');
-    }
+    body('done')
+        .optional({ values: 'null' })
+        .isBoolean()
+        .withMessage('done must be a boolean'),
 
-    if (description !== undefined && typeof description !== 'string') {
-        errors.push('description must be a string');
-    }
+    body('description')
+        .trim()
+        .optional({ values: 'falsy' })
+        .isString()
+        .withMessage('description must be a string'),
 
-    if (deadline !== undefined && isNaN(Date.parse(deadline))) {
-        errors.push('deadline must be a date format');
-    }
+    body('deadline')
+        .optional({ values: 'falsy' })
+        .matches(/^\d{4}-\d{2}-\d{2}$/)
+        .withMessage('deadline must be in format YYYY-MM-DD')
+        .custom((value) => {
+            const date = new Date(value);
+            if (isNaN(date.getTime())) {
+                throw new Error('Invalid deadline date');
+            }
+            return true;
+        }),
 
-    if (priority !== undefined) {
-        if (!Number.isInteger(priority) || priority < 1 || priority > 3) {
-            errors.push('priority must be an integer between 1 and 3');
-        }
-    }
+    body('priority')
+        .optional({ values: 'falsy' })
+        .isInt({ min: 1, max: 3 })
+        .withMessage('priority must be an integer between 1 and 3'),
 
-    if (subtasks !== undefined) {
-        if (!Array.isArray(subtasks)) {
-            errors.push('subtasks must be an array');
-        } else {
-            subtasks.forEach((subtask, ind) => {
-                if (typeof subtask !== 'object' || subtask === null) {
-                    errors.push(`subtask[${ind}] must be an object`);
-                }
+    body('subtasks')
+        .optional({ values: 'null' })
+        .isArray()
+        .withMessage('subtasks must be an array'),
 
-                const { title, done } = subtask;
+    body('subtasks.*')
+        .optional()
+        .isObject()
+        .withMessage('each subtask must be an object'),
 
-                if (title !== undefined && typeof title !== 'string') {
-                    errors.push(
-                        `subtask[${ind}].title is required and must be a string`
-                    );
-                }
+    body('subtasks.*.title')
+        .notEmpty()
+        .withMessage('subtask.title is required')
+        .isString()
+        .withMessage('subtask.title must be a string'),
 
-                if (done !== undefined && typeof done !== 'boolean') {
-                    errors.push(`subtask[${ind}].done must be a boolean`);
-                }
-            });
-        }
-    }
+    body('subtasks.*.done')
+        .optional({ values: 'falsy' })
+        .isBoolean()
+        .withMessage('subtask.done must be a boolean'),
+];
 
-    return {
-        isValid: errors.length === 0,
-        errors,
-    };
-}
+const createValidation = [...baseValidation];
 
-const createValidation = async (req, res, next) => {
-    const data = req.body;
-    const { isValid, errors } = validateTask(data, false);
-    if (!isValid) {
-        return res.status(400).json({
-            message: 'validation error',
-            errors: errors,
-        });
-    }
-    next();
-};
-
-const updateValidation = async (req, res, next) => {
-    const data = req.body;
-    const { isValid, errors } = validateTask(data, true);
-    if (!isValid) {
-        return res.status(400).json({
-            message: 'validation error',
-            errors: errors,
-        });
-    }
-    next();
-};
+const updateValidation = [...baseValidation];
 
 module.exports = {
     createValidation,

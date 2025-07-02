@@ -11,8 +11,13 @@ class AppError extends Error {
 }
 
 class ValidationError extends AppError {
-    constructor(message = 'Validation failed', loggable = false) {
+    constructor(
+        message = 'Validation failed',
+        errors = null,
+        loggable = false
+    ) {
         super(message, 400, loggable);
+        this.errors = errors;
     }
 }
 

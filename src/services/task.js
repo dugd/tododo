@@ -1,20 +1,44 @@
 const Task = require('../models/task');
 
-async function getAllTasks(userId = null) {
+async function getAllTasks(userId = null, sortObj = {}, pagination = {}) {
     const filter = userId ? { userId } : {};
-    return Task.find(filter);
+
+    let query = Task.find(filter)
+        .sort(sortObj)
+        .skip(pagination.skip || 0);
+    if (pagination.limit > 0) {
+        query = query.limit(pagination.limit);
+    }
+
+    return query;
 }
 
-async function getActiveTasks(userId = null) {
+async function getActiveTasks(userId = null, sortObj = {}, pagination = {}) {
     const filter = { done: false };
     if (userId) filter.userId = userId;
-    return Task.find(filter);
+
+    let query = Task.find(filter)
+        .sort(sortObj)
+        .skip(pagination.skip || 0);
+    if (pagination.limit > 0) {
+        query = query.limit(pagination.limit);
+    }
+
+    return query;
 }
 
-async function getOverdueTasks(userId = null) {
+async function getOverdueTasks(userId = null, sortObj = {}, pagination = {}) {
     const filter = { done: false };
     if (userId) filter.userId = userId;
-    const tasks = await Task.find(filter);
+
+    let query = Task.find(filter)
+        .sort(sortObj)
+        .skip(pagination.skip || 0);
+    if (pagination.limit > 0) {
+        query = query.limit(pagination.limit);
+    }
+
+    const tasks = await query;
     return tasks.filter((task) => task.overdue);
 }
 

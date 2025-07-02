@@ -48,7 +48,7 @@ async function updateCompletedAt(next) {
 }
 
 taskSchema.virtual('overdue').get(function () {
-    return !this.done && Date.now() > this.deadline;
+    return !this.done && this.deadline && Date.now() > this.deadline;
 });
 
 taskSchema.pre('save', updateCompletedAt);

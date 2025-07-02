@@ -22,7 +22,13 @@ router.get('/', sortQueries, async (req, res) => {
             overdue: taskService.getOverdueTasks,
         }[filter] ?? taskService.getActiveTasks;
     const tasks = await getTasks(req.user._id, req.sortObj);
-    res.render('tasks/index', { tasks });
+
+    const sortBy = Object.keys(req.sortObj)[0];
+    const sortDir = req.sortObj[sortBy] === -1 ? 'desc' : 'asc';
+    res.render('tasks/index', {
+        tasks,
+        queries: { filter, sortBy, sortDir },
+    });
 });
 
 router

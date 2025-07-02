@@ -1,5 +1,37 @@
 <h2 class="card-title mb-4 text-center">Tododo List</h2>
 
+<form method="GET" class="mb-4 d-flex gap-2">
+    <div class="flex-grow-1">
+        <label for="filter" class="form-label">Filter by:</label>
+        <select name="filter" id="filter" class="form-select">
+            <option <%= queries.filter == 'active' ? 'selected' : '' %> value="active">Active</option>
+            <option <%= queries.filter == 'overdue' ? 'selected' : '' %> value="overdue">Overdue</option>
+            <option <%= queries.filter == 'all' ? 'selected' : '' %> value="all">All</option>
+        </select>
+    </div>
+
+    <div class="flex-grow-1">
+        <label for="sortBy" class="form-label">Sort by:</label>
+        <select name="sortBy" id="sortBy" class="form-select">
+            <option <%= queries.sortBy == 'deadline' ? 'selected' : '' %> value="deadline">Deadline</option>
+            <option <%= queries.sortBy == 'priority' ? 'selected' : '' %> value="priority">Priority</option>
+            <option <%= queries.sortBy == 'title' ? 'selected' : '' %> value="title">Title</option>
+        </select>
+    </div>
+
+    <div class="flex-grow-1">
+        <label for="sortDir" class="form-label">Sort direction:</label>
+        <select name="sortDir" class="form-select">
+            <option <%= queries.sortDir == 'asc' ? 'selected' : '' %> value="asc">Asc</option>
+            <option <%= queries.sortDir == 'desc' ? 'selected' : '' %> value="desc">Desc</option>
+        </select>
+    </div>
+
+    <div class="flex-grow-1 d-flex align-items-end">
+        <button class="btn btn-primary flex-grow-1">Apply</button>
+    </div>
+</form>
+
 <ul class="list-group">
     <% tasks.forEach(task => { %>
         <%- include('./item-task.ejs', { task }) %>
